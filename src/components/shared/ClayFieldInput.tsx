@@ -1,7 +1,7 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-interface ClayFieldInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+interface ClayFieldInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   label?: string;
   error?: string;
   prefix?: ReactNode;

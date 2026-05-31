@@ -64,6 +64,16 @@ export default function AppLayout() {
             </div>
           </Suspense>
         </main>
+        <footer className="shrink-0 py-3 text-center bg-surface/60 backdrop-blur-sm border-t border-outline-variant/10">
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-on-surface-variant/50 hover:text-primary transition-colors spring-transition"
+          >
+            闽ICP备2022011948号-1
+          </a>
+        </footer>
       </div>
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
