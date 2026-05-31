@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TestKit - Code Prettifier &amp; Pro Utility</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Claymorphic Utility Classes */
+        .shadow-clay {
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.08),
+                -4px -4px 12px rgba(255, 255, 255, 0.9),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .shadow-clay-hover:hover {
+            box-shadow: 
+                12px 12px 20px rgba(0, 0, 0, 0.12),
+                -6px -6px 16px rgba(255, 255, 255, 1),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.5),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.03);
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        .shadow-clay-active:active {
+            box-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.05),
+                -1px -1px 4px rgba(255, 255, 255, 0.8),
+                inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.3);
+            transform: scale(0.98);
+        }
+
+        .shadow-clay-inset {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.08),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .spring-transition {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom Scrollbar for Code Area */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #bec9c0;
+            border-radius: 10px;
+        }
+
+        body {
+            background-color: #f6f9ff;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "clay-yellow-deep": "#d4a373",
+                      "tertiary-container": "#ff98a8",
+                      "error": "#ba1a1a",
+                      "clay-pink-main": "#ffb3d9",
+                      "outline": "#6f7a72",
+                      "clay-blue-light": "#cae9ff",
+                      "on-surface": "#151c22",
+                      "clay-yellow-light": "#fff4bd",
+                      "surface-container-lowest": "#ffffff",
+                      "clay-purple-deep": "#7e5ca0",
+                      "clay-purple-light": "#e4c1f9",
+                      "clay-blue-dark": "#5a9fd4",
+                      "secondary": "#30628a",
+                      "inverse-surface": "#2a3138",
+                      "surface-bright": "#f6f9ff",
+                      "secondary-fixed-dim": "#9bcbf8",
+                      "surface-container-low": "#eef4fd",
+                      "clay-green-light": "#d8f3dc",
+                      "on-primary": "#ffffff",
+                      "primary": "#0e6c4a",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffd9dd",
+                      "clay-yellow-dark": "#ffcc77",
+                      "clay-green-dark": "#74c69d",
+                      "clay-pink-dark": "#ff8fb3",
+                      "clay-purple-main": "#d4a5f3",
+                      "clay-green-deep": "#2d6a4f",
+                      "surface": "#f6f9ff",
+                      "on-secondary-fixed-variant": "#104a70",
+                      "on-background": "#151c22",
+                      "primary-fixed-dim": "#85d7ad",
+                      "clay-blue-deep": "#356590",
+                      "primary-container": "#74c69d",
+                      "on-surface-variant": "#3f4943",
+                      "on-error-container": "#93000a",
+                      "clay-blue-main": "#a2d2ff",
+                      "surface-container-high": "#e2e9f1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#001d32",
+                      "outline-variant": "#bec9c0",
+                      "on-primary-fixed-variant": "#005236",
+                      "on-primary-fixed": "#002113",
+                      "clay-green-main": "#b7e4c7",
+                      "primary-fixed": "#a0f4c8",
+                      "surface-variant": "#dce3ec",
+                      "clay-pink-light": "#ffc8dd",
+                      "surface-dim": "#d4dbe3",
+                      "inverse-on-surface": "#ebf1fa",
+                      "surface-container-highest": "#dce3ec",
+                      "on-tertiary-container": "#8d0f37",
+                      "background": "#f6f9ff",
+                      "tertiary": "#ad2c4d",
+                      "clay-yellow-main": "#ffe6a7",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#8d0f36",
+                      "surface-tint": "#0e6c4a",
+                      "clay-purple-dark": "#b377dc",
+                      "on-secondary-container": "#265a81",
+                      "clay-pink-deep": "#ff6a88",
+                      "on-primary-container": "#005236",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#a1d1fe",
+                      "surface-container": "#e8eef7",
+                      "secondary-fixed": "#cde5ff",
+                      "inverse-primary": "#85d7ad",
+                      "tertiary-fixed-dim": "#ffb2bc",
+                      "on-tertiary-fixed": "#400013"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "container-padding": "24px",
+                      "clay-padding-sm": "12px 16px",
+                      "stack-gap": "12px",
+                      "clay-padding-md": "20px 24px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Quicksand"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "tool-title": ["Inter"],
+                      "headline-md": ["Quicksand"],
+                      "mono": ["JetBrains Mono", "monospace"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "tool-title": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="font-body-sm text-on-background overflow-hidden h-screen flex">
+<!-- Left Side Navigation (Global) -->
+<nav class="h-screen w-64 fixed left-0 top-0 rounded-r-xl shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] bg-surface flex flex-col p-container-padding gap-stack-gap z-50">
+<div class="mb-8 px-clay-padding-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-clay-green-deep">TestKit</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Pro Utility Suite</p>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Dashboard Tab (Inactive) -->
+<a class="spring-transition flex items-center gap-3 text-on-surface-variant px-clay-padding-sm py-3 hover:bg-surface-container-high hover:translate-x-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<!-- Optimizers Tab (Active) -->
+<a class="spring-transition flex items-center gap-3 bg-clay-green-light text-clay-green-deep rounded-xl px-clay-padding-sm py-3 shadow-inner scale-[1.02] font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="image">image</span>
+<span class="font-label-md">Optimizers</span>
+</a>
+<!-- Converters Tab (Inactive) -->
+<a class="spring-transition flex items-center gap-3 text-on-surface-variant px-clay-padding-sm py-3 hover:bg-surface-container-high hover:translate-x-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="font-label-md">Converters</span>
+</a>
+<!-- History Tab (Inactive) -->
+<a class="spring-transition flex items-center gap-3 text-on-surface-variant px-clay-padding-sm py-3 hover:bg-surface-container-high hover:translate-x-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md">History</span>
+</a>
+<!-- Settings Tab (Inactive) -->
+<a class="spring-transition flex items-center gap-3 text-on-surface-variant px-clay-padding-sm py-3 hover:bg-surface-container-high hover:translate-x-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full py-4 bg-clay-blue-main text-clay-blue-deep rounded-2xl font-bold shadow-clay shadow-clay-hover shadow-clay-active spring-transition">
+                Upgrade to Pro
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 h-screen flex flex-col relative">
+<!-- Top Navigation Bar -->
+<header class="h-20 flex items-center justify-between px-container-padding w-full bg-surface/90 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.03)] z-40">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-clay-purple-light text-clay-purple-deep rounded-xl shadow-clay">
+<span class="material-symbols-outlined" data-icon="code">code</span>
+</div>
+<h2 class="font-tool-title text-tool-title font-bold text-on-surface">Code Prettifier</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full shadow-clay-inset">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none outline-none text-body-sm w-48" placeholder="Search functions..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="spring-transition hover:scale-110"><span class="material-symbols-outlined" data-icon="contrast">contrast</span></button>
+<button class="spring-transition hover:scale-110 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="spring-transition hover:scale-110"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<button class="ml-4 py-2 px-6 bg-primary text-on-primary rounded-full font-bold shadow-clay shadow-clay-hover shadow-clay-active spring-transition">
+                        New Project
+                    </button>
+</div>
+</div>
+</header>
+<!-- Tool Dashboard Grid -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Central Editor Area -->
+<section class="flex-1 p-6 flex flex-col gap-6 overflow-hidden">
+<div class="flex-1 bg-surface-container-lowest rounded-3xl shadow-clay flex flex-col overflow-hidden border border-white/40">
+<!-- Editor Toolbar -->
+<div class="px-6 py-4 bg-surface-container-low/50 flex items-center justify-between border-b border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="flex gap-1">
+<span class="w-3 h-3 rounded-full bg-error opacity-60"></span>
+<span class="w-3 h-3 rounded-full bg-clay-yellow-dark opacity-60"></span>
+<span class="w-3 h-3 rounded-full bg-clay-green-dark opacity-60"></span>
+</span>
+<span class="ml-4 text-on-surface-variant font-mono text-sm">index.js</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg text-outline-variant hover:text-primary spring-transition"><span class="material-symbols-outlined text-[20px]" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 rounded-lg text-outline-variant hover:text-primary spring-transition"><span class="material-symbols-outlined text-[20px]" data-icon="auto_fix_high">auto_fix_high</span></button>
+</div>
+</div>
+<!-- Editor Content -->
+<div class="flex-1 p-8 font-mono text-body-lg text-on-surface-variant overflow-y-auto custom-scrollbar">
+<pre class="whitespace-pre-wrap"><span class="text-clay-purple-deep font-bold">function</span> <span class="text-clay-blue-deep">beautifyUI</span>(element) {
+    <span class="text-clay-green-deep">const</span> styles = {
+        tactile: <span class="text-clay-pink-deep">'claymorphic'</span>,
+        radius: <span class="text-clay-yellow-deep">24</span>,
+        volume: <span class="text-clay-blue-dark">0.85</span>
+    };
+
+    <span class="text-clay-purple-deep">return</span> element
+        .apply(styles.tactile)
+        .addShadows(styles.volume)
+        .setCornerRadius(styles.radius);
+}
+
+<span class="text-outline-variant">// Initialize the magic component</span>
+<span class="text-clay-green-deep">const</span> app = <span class="text-clay-purple-deep">new</span> <span class="text-clay-blue-deep">TestKitPro</span>();
+app.render(<span class="text-clay-pink-deep">'#root'</span>, <span class="text-clay-yellow-deep">true</span>);</pre>
+</div>
+</div>
+<!-- Bottom Secondary Action Bar -->
+<div class="h-20 bg-surface-container rounded-3xl shadow-clay flex items-center justify-between px-8">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="storage">storage</span>
+<span class="font-label-md">1.2 KB</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>
+<span class="font-label-md">Last saved 2m ago</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-high rounded-full font-bold shadow-clay shadow-clay-hover shadow-clay-active spring-transition text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="share">share</span>
+                            Share
+                        </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-clay-purple-main text-white rounded-full font-bold shadow-clay shadow-clay-hover shadow-clay-active spring-transition">
+<span class="material-symbols-outlined text-[20px]" data-icon="download">download</span>
+                            Download PDF
+                        </button>
+</div>
+</div>
+</section>
+<!-- Right Settings Sidebar -->
+<aside class="w-80 p-6 flex flex-col gap-6 bg-surface-container-low shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.02)] z-30">
+<div class="flex-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-clay-yellow-deep" data-icon="tune">tune</span>
+                        Properties
+                    </h3>
+<!-- Clay Setting Group -->
+<div class="p-6 bg-surface-container-lowest rounded-3xl shadow-clay flex flex-col gap-4">
+<h4 class="font-label-md text-on-surface-variant opacity-60 uppercase tracking-widest">General</h4>
+<div class="flex flex-col gap-3">
+<label class="text-body-sm font-semibold">Indentation</label>
+<div class="flex p-1 bg-surface-container rounded-2xl shadow-clay-inset">
+<button class="flex-1 py-2 text-primary font-bold bg-white rounded-xl shadow-clay">2 Space</button>
+<button class="flex-1 py-2 text-on-surface-variant opacity-60">4 Space</button>
+<button class="flex-1 py-2 text-on-surface-variant opacity-60">Tabs</button>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<label class="text-body-sm font-semibold">Line Wrap</label>
+<div class="flex items-center justify-between">
+<span class="text-body-sm text-on-surface-variant">Enable soft wrapping</span>
+<button class="w-12 h-6 bg-clay-green-main rounded-full relative shadow-clay-inset">
+<span class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-clay"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Layout Options -->
+<div class="p-6 bg-surface-container-lowest rounded-3xl shadow-clay flex flex-col gap-4">
+<h4 class="font-label-md text-on-surface-variant opacity-60 uppercase tracking-widest">Layout</h4>
+<div class="grid grid-cols-2 gap-3">
+<button class="p-4 rounded-2xl bg-clay-blue-light text-clay-blue-deep shadow-clay spring-transition flex flex-col items-center gap-2">
+<span class="material-symbols-outlined" data-icon="view_agenda">view_agenda</span>
+<span class="text-[10px] font-bold">Standard</span>
+</button>
+<button class="p-4 rounded-2xl bg-white text-on-surface-variant shadow-clay-inset spring-transition flex flex-col items-center gap-2">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px] font-bold">Compact</span>
+</button>
+</div>
+</div>
+<!-- Visual Customization -->
+<div class="p-6 bg-surface-container-lowest rounded-3xl shadow-clay flex flex-col gap-4">
+<h4 class="font-label-md text-on-surface-variant opacity-60 uppercase tracking-widest">Theme Accent</h4>
+<div class="flex gap-3 justify-between">
+<div class="w-8 h-8 rounded-full bg-clay-purple-main shadow-clay cursor-pointer scale-110 ring-4 ring-clay-purple-light ring-offset-2"></div>
+<div class="w-8 h-8 rounded-full bg-clay-green-main shadow-clay cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-clay-blue-main shadow-clay cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-clay-yellow-main shadow-clay cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-clay-pink-main shadow-clay cursor-pointer"></div>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full py-4 bg-primary text-on-primary rounded-2xl font-bold shadow-clay shadow-clay-hover shadow-clay-active spring-transition flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="auto_fix_high">auto_fix_high</span>
+                        Prettify Code
+                    </button>
+</div>
+</aside>
+</div>
+<!-- Collapsible Bottom History Panel -->
+<section class="absolute bottom-0 left-0 right-0 h-48 bg-surface-dim/80 backdrop-blur-xl border-t border-white/20 translate-y-36 hover:translate-y-0 spring-transition z-20 group">
+<div class="h-12 flex items-center justify-center cursor-pointer">
+<div class="w-16 h-1.5 bg-outline-variant/50 rounded-full group-hover:bg-primary/50 transition-colors"></div>
+</div>
+<div class="px-8 pb-8 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-md text-[18px] text-on-surface">Recent History</h4>
+<button class="text-primary font-bold font-label-md">View All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+<!-- History Cards -->
+<div class="min-w-[200px] p-4 bg-white rounded-2xl shadow-clay flex items-center gap-3 spring-transition hover:-translate-y-1 cursor-pointer">
+<div class="w-10 h-10 rounded-xl bg-clay-green-light flex items-center justify-center text-clay-green-deep">
+<span class="material-symbols-outlined" data-icon="javascript">javascript</span>
+</div>
+<div>
+<p class="font-bold text-sm truncate">main_layout.js</p>
+<p class="text-[10px] text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="min-w-[200px] p-4 bg-white rounded-2xl shadow-clay flex items-center gap-3 spring-transition hover:-translate-y-1 cursor-pointer">
+<div class="w-10 h-10 rounded-xl bg-clay-blue-light flex items-center justify-center text-clay-blue-deep">
+<span class="material-symbols-outlined" data-icon="css">css</span>
+</div>
+<div>
+<p class="font-bold text-sm truncate">globals.css</p>
+<p class="text-[10px] text-on-surface-variant">Yesterday</p>
+</div>
+</div>
+<div class="min-w-[200px] p-4 bg-white rounded-2xl shadow-clay flex items-center gap-3 spring-transition hover:-translate-y-1 cursor-pointer">
+<div class="w-10 h-10 rounded-xl bg-clay-purple-light flex items-center justify-center text-clay-purple-deep">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<p class="font-bold text-sm truncate">project_spec.pdf</p>
+<p class="text-[10px] text-on-surface-variant">3 days ago</p>
+</div>
+</div>
+<div class="min-w-[200px] p-4 bg-white rounded-2xl shadow-clay flex items-center gap-3 spring-transition hover:-translate-y-1 cursor-pointer">
+<div class="w-10 h-10 rounded-xl bg-clay-yellow-light flex items-center justify-center text-clay-yellow-deep">
+<span class="material-symbols-outlined" data-icon="html">html</span>
+</div>
+<div>
+<p class="font-bold text-sm truncate">index.html</p>
+<p class="text-[10px] text-on-surface-variant">Last week</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-4 bg-surface-dim border-t border-outline-variant/20 flex justify-between items-center px-12 z-10">
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 TestKit Professional. Built for efficiency.</p>
+<div class="flex gap-gutter">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary spring-transition" href="#">Documentation</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary spring-transition" href="#">Support</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary spring-transition" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary spring-transition" href="#">API Status</a>
+</div>
+</footer>
+</main>
+<script>
+        // Simple micro-interaction for the Prettify button
+        document.querySelector('button[data-icon="auto_fix_high"]').parentElement.addEventListener('click', function() {
+            const btn = this;
+            btn.classList.add('scale-95');
+            setTimeout(() => {
+                btn.classList.remove('scale-95');
+                // Simulate processing
+                const editor = document.querySelector('pre');
+                editor.style.opacity = '0.5';
+                editor.style.filter = 'blur(2px)';
+                setTimeout(() => {
+                    editor.style.opacity = '1';
+                    editor.style.filter = 'none';
+                    alert('Code Prettified Successfully!');
+                }, 800);
+            }, 150);
+        });
+
+        // Theme toggle logic (visual only)
+        const accentDots = document.querySelectorAll('.w-8.h-8.rounded-full');
+        accentDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                accentDots.forEach(d => d.classList.remove('scale-110', 'ring-4', 'ring-offset-2', 'ring-clay-purple-light'));
+                dot.classList.add('scale-110', 'ring-4', 'ring-offset-2', 'ring-clay-purple-light');
+            });
+        });
+    </script>
+</body></html>

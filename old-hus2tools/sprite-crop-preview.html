@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Crop Tool</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container { max-width: 1600px; margin: 0 auto; }
+.header { color: white; text-align: center; margin-bottom: 25px; }
+.header h1 { font-size: 2.2rem; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+.header p { opacity: 0.95; font-size: 1.1rem; }
+.main {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 25px;
+    min-height: calc(100vh - 120px);
+}
+.panel {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.panel.sidebar {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+.panel.preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.panel h2 {
+    font-size: 1.25rem;
+    color: #4a5568;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+}
+.upload-area { margin-bottom: 20px; }
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    border: 3px dashed #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+.upload-label:hover { border-color: #667eea; background: #eef5ff; }
+.upload-icon { font-size: 42px; margin-bottom: 10px; }
+.upload-text { font-size: 0.95rem; color: #4a5568; font-weight: 500; }
+.upload-sub { font-size: 0.8rem; color: #94a3b8; margin-top: 6px; }
+.upload-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #dcfce7;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #166534;
+    display: none;
+}
+.upload-info .format-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.format-badge.svg { background: #fbbf24; color: #78350f; }
+.format-badge.png { background: #34d399; color: #064e3b; }
+.format-badge.jpg { background: #60a5fa; color: #1e3a5f; }
+.format-badge.gif { background: #f472b6; color: #831843; }
+.format-badge.webp { background: #a78bfa; color: #3b0764; }
+.format-badge.bmp { background: #fb923c; color: #7c2d12; }
+.format-badge.avif { background: #2dd4bf; color: #134e4a; }
+.format-badge.ico { background: #f87171; color: #7f1d1d; }
+.format-badge.tiff { background: #818cf8; color: #312e81; }
+.format-badge.other { background: #94a3b8; color: #1e293b; }
+.viewbox-info {
+    padding: 12px;
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #92400e;
+    margin-bottom: 15px;
+    display: none;
+}
+.viewbox-info code {
+    background: #fde68a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+.tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 10px;
+}
+.tab-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.tab-btn.active {
+    background: white;
+    color: #667eea;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.tab-btn:hover:not(.active) { color: #334155; }
+.tab-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.controls { display: flex; flex-direction: column; gap: 15px; }
+.control-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.control-item { display: flex; flex-direction: column; }
+.control-item label { font-weight: 600; color: #4a5568; margin-bottom: 6px; font-size: 0.9rem; }
+.control-item input, .control-item select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: monospace;
+}
+.control-item input:focus, .control-item select:focus { outline: none; border-color: #667eea; }
+.output-format-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+}
+.output-format-row label { font-weight: 600; color: #4a5568; font-size: 0.9rem; white-space: nowrap; }
+.output-format-row select {
+    flex: 1;
+    padding: 8px 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+.output-format-row select:focus { outline: none; border-color: #667eea; }
+.quality-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+.quality-row label { font-weight: 600; color: #4a5568; font-size: 0.9rem; white-space: nowrap; }
+.quality-row input[type="range"] { flex: 1; accent-color: #667eea; }
+.quality-row .quality-val { font-size: 0.85rem; color: #667eea; font-weight: 600; min-width: 36px; text-align: right; }
+.compress-options { display: flex; flex-direction: column; gap: 10px; }
+.compress-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: #f7fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+}
+.compress-option input[type="checkbox"] { width: 18px; height: 18px; accent-color: #667eea; }
+.compress-option label { font-size: 0.9rem; color: #334155; cursor: pointer; font-weight: 500; }
+.compress-notice {
+    padding: 10px 12px;
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #92400e;
+    display: none;
+    margin-bottom: 10px;
+}
+.compress-result {
+    padding: 12px; background: #f0fdf4; border: 1px solid #86efac;
+    border-radius: 8px; font-size: 0.85rem; color: #166534; display: none;
+}
+.compress-result .size-compare { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.compress-result .size-bar { flex: 1; height: 8px; background: #dcfce7; border-radius: 4px; overflow: hidden; }
+.compress-result .size-bar-inner { height: 100%; background: #22c55e; border-radius: 4px; transition: width 0.3s ease; }
+.sprite-detect-bar {
+    display: flex; gap: 8px; align-items: flex-end; margin-bottom: 12px;
+}
+.sprite-detect-bar .detect-field { display: flex; flex-direction: column; flex: 1; }
+.sprite-detect-bar .detect-field label { font-size: 0.8rem; font-weight: 600; color: #4a5568; margin-bottom: 4px; }
+.sprite-detect-bar .detect-field input, .sprite-detect-bar .detect-field select {
+    padding: 8px 10px; border: 2px solid #e2e8f0; border-radius: 8px;
+    font-size: 0.9rem; font-family: monospace;
+}
+.sprite-detect-bar .detect-field input:focus, .sprite-detect-bar .detect-field select:focus { outline: none; border-color: #667eea; }
+.sprite-detect-bar .detect-btn {
+    padding: 8px 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; border-radius: 8px; font-size: 0.85rem;
+    font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.sprite-detect-bar .detect-btn:hover { opacity: 0.9; }
+.sprite-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 280px; overflow-y: auto;
+}
+.sprite-item {
+    display: grid; grid-template-columns: auto auto auto 1fr auto;
+    align-items: center; padding: 8px 10px;
+    background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease; gap: 8px;
+}
+.sprite-item:hover { border-color: #667eea; background: #eef5ff; }
+.sprite-item.selected { border-color: #667eea; background: #eef5ff; box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2); }
+.sprite-item-thumb {
+    width: 40px; height: 40px; border-radius: 4px; overflow: hidden;
+    background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 10px 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sprite-item-thumb canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+.sprite-item-idx {
+    width: 24px; height: 24px; background: #667eea; color: white;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+}
+.sprite-item-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sprite-item-name {
+    font-weight: 600; font-size: 0.85rem; color: #334155;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sprite-item-name input {
+    width: 100%; padding: 2px 6px; border: 1px solid #e2e8f0; border-radius: 4px;
+    font-size: 0.85rem; font-weight: 600; font-family: inherit;
+}
+.sprite-item-name input:focus { outline: none; border-color: #667eea; }
+.sprite-item-coords { font-size: 0.7rem; color: #64748b; font-family: monospace; }
+.sprite-item-btns { display: flex; gap: 4px; }
+.sprite-item-btn {
+    padding: 3px 8px; border: none; border-radius: 5px;
+    font-size: 0.7rem; cursor: pointer; font-weight: 600;
+}
+.sprite-item-btn.crop-btn { background: #667eea; color: white; }
+.sprite-item-btn.crop-btn:hover { background: #5a6fd6; }
+.sprite-item-btn.dl-btn { background: #10b981; color: white; }
+.sprite-item-btn.dl-btn:hover { background: #059669; }
+.sprite-item-btn.locate-btn { background: #667eea; color: white; }
+.sprite-item-btn.locate-btn:hover { background: #5a6fd6; }
+.sprite-item-btn.del-btn { background: #fee2e2; color: #dc2626; }
+.sprite-item-btn.del-btn:hover { background: #fecaca; }
+.sprite-item-btn.merge-btn { background: #f59e0b; color: white; }
+.sprite-item-btn.merge-btn:hover { background: #d97706; }
+.sprite-batch-bar {
+    display: flex; gap: 6px; align-items: center; padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; flex-wrap: wrap;
+}
+.sprite-batch-bar .batch-info { font-size: 0.8rem; color: #64748b; margin-right: auto; }
+.sprite-item.dragging { opacity: 0.4; border-style: dashed; }
+.sprite-item.drag-over { border-color: #667eea; border-style: solid; box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3); }
+.sprite-item .drag-handle {
+    cursor: grab; color: #cbd5e1; font-size: 1rem; padding: 0 2px; user-select: none;
+}
+.sprite-item .drag-handle:active { cursor: grabbing; }
+.sprite-empty { text-align: center; padding: 20px; color: #94a3b8; font-size: 0.9rem; }
+.sprite-add-form {
+    padding: 12px; background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 8px; margin-bottom: 10px; display: none;
+}
+.sprite-add-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.sprite-add-form .form-row:last-child { margin-bottom: 0; }
+.sprite-add-form .form-field { display: flex; flex-direction: column; }
+.sprite-add-form .form-field label { font-size: 0.75rem; font-weight: 600; color: #4a5568; margin-bottom: 3px; }
+.sprite-add-form .form-field input {
+    padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px;
+    font-size: 0.85rem; font-family: monospace;
+}
+.sprite-add-form .form-field input:focus { outline: none; border-color: #667eea; }
+.sprite-add-form .form-actions { display: flex; gap: 8px; margin-top: 8px; }
+.sprite-add-form .form-actions button {
+    flex: 1; padding: 7px 12px; border: none; border-radius: 6px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
+.sprite-css-output {
+    margin-top: 12px; padding: 12px; background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; font-family: monospace; font-size: 0.8rem;
+    white-space: pre-wrap; word-break: break-all;
+    max-height: 180px; overflow-y: auto; display: none;
+}
+.buttons {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;
+}
+.buttons button {
+    width: 100%; padding: 13px 20px; border: none; border-radius: 10px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+}
+.btn-row { display: flex; gap: 8px; }
+.btn-row button { flex: 1; }
+.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+.btn-secondary { background: #f7fafc; color: #4a5568; border: 2px solid #e2e8f0; }
+.btn-secondary:hover { background: #edf2f7; }
+.btn-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+.btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
+.btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; }
+.btn-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+.btn-orange:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+.ratio-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.ratio-btn {
+    padding: 5px 10px; border: 2px solid #e2e8f0; border-radius: 6px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer; background: #f7fafc;
+    color: #4a5568; transition: all 0.2s ease;
+}
+.ratio-btn:hover { border-color: #667eea; color: #667eea; }
+.ratio-btn.active { background: #667eea; color: white; border-color: #667eea; }
+.transform-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.transform-btn {
+    padding: 6px 10px; border: 2px solid #e2e8f0; border-radius: 6px;
+    font-size: 0.8rem; cursor: pointer; background: #f7fafc; color: #4a5568;
+    transition: all 0.2s ease; font-weight: 500;
+}
+.transform-btn:hover { border-color: #667eea; color: #667eea; background: #eef5ff; }
+.raster-compress-options { display: flex; flex-direction: column; gap: 12px; }
+.raster-compress-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+}
+.raster-compress-row label { font-weight: 600; color: #4a5568; font-size: 0.85rem; white-space: nowrap; min-width: 70px; }
+.raster-compress-row input, .raster-compress-row select {
+    flex: 1; padding: 8px 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;
+}
+.raster-compress-row input:focus, .raster-compress-row select:focus { outline: none; border-color: #667eea; }
+.raster-compress-row .unit { font-size: 0.8rem; color: #94a3b8; min-width: 24px; }
+.compress-preview { margin-top: 12px; display: none; }
+.compare-slider {
+    position: relative; width: 100%; overflow: hidden; border-radius: 8px;
+    border: 1px solid #e2e8f0; cursor: ew-resize; user-select: none;
+    background: repeating-conic-gradient(#f1f5f9 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+}
+.compare-slider img {
+    display: block; width: 100%; height: auto; max-height: 200px; object-fit: contain;
+    pointer-events: none;
+}
+.compare-slider .compare-orig {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    overflow: hidden; z-index: 1;
+}
+.compare-slider .compare-orig img { width: 100%; }
+.compare-slider .compare-line {
+    position: absolute; top: 0; bottom: 0; width: 3px;
+    background: #667eea; z-index: 2; left: 50%;
+    box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
+}
+.compare-slider .compare-handle {
+    position: absolute; top: 50%; width: 28px; height: 28px;
+    background: #667eea; border-radius: 50%; z-index: 3;
+    left: calc(50% - 14px); transform: translateY(-50%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.compare-slider .compare-handle::after {
+    content: '⟺'; color: white; font-size: 14px; font-weight: bold;
+}
+.compare-slider .compare-label {
+    position: absolute; top: 6px; padding: 2px 8px; border-radius: 4px;
+    font-size: 0.7rem; font-weight: 600; z-index: 4; pointer-events: none;
+}
+.compare-slider .compare-label-orig { left: 6px; background: rgba(102,126,234,0.8); color: white; }
+.compare-slider .compare-label-comp { right: 6px; background: rgba(16,185,129,0.8); color: white; }
+.crop-preview-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px; overflow: hidden; background: #f0f4f8;
+    display: none; margin-top: 10px;
+}
+.crop-preview-box .preview-label { font-size: 0.75rem; color: #64748b; text-align: center; padding: 4px; background: #f1f5f9; font-weight: 600; }
+.crop-preview-box canvas { display: block; max-width: 100%; margin: 0 auto; }
+.progress-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); display: none; z-index: 999;
+    justify-content: center; align-items: center;
+}
+.progress-overlay.show { display: flex; }
+.progress-box {
+    background: white; border-radius: 16px; padding: 32px 40px;
+    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.progress-box p { font-size: 1rem; color: #334155; margin-bottom: 16px; font-weight: 600; }
+.progress-bar-track { width: 240px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.2s ease; width: 0%; }
+.preview-container {
+    flex: 1; background: #1e293b; border-radius: 12px;
+    overflow: hidden; position: relative; min-height: 500px;
+}
+.preview-container img { display: block; max-width: 100%; }
+.preview-placeholder {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: #64748b; font-size: 1.1rem; text-align: center; pointer-events: none;
+}
+.preview-placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; }
+.info-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 12px; padding: 10px 14px; background: #f1f5f9;
+    border-radius: 8px; font-size: 0.85rem; color: #64748b; flex-wrap: wrap; gap: 8px;
+}
+.info-item { display: flex; align-items: center; gap: 6px; }
+.info-item strong { color: #334155; font-weight: 600; }
+.exif-panel {
+    margin-top: 8px; padding: 10px 14px; background: #f8fafc;
+    border-radius: 8px; font-size: 0.8rem; color: #64748b;
+    display: none; border: 1px solid #e2e8f0;
+}
+.exif-panel.show { display: block; }
+.exif-panel .exif-title { font-weight: 700; color: #334155; margin-bottom: 6px; cursor: pointer; user-select: none; }
+.exif-panel .exif-title::before { content: '📷 '; }
+.exif-panel .exif-title::after { content: ' ▾'; font-size: 0.7rem; }
+.exif-panel .exif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+.exif-panel .exif-field { display: flex; gap: 4px; }
+.exif-panel .exif-label { color: #94a3b8; white-space: nowrap; }
+.exif-panel .exif-value { color: #334155; font-weight: 500; word-break: break-all; }
+.webp-frames-panel {
+    margin-top: 8px; padding: 10px 14px; background: #f8fafc;
+    border-radius: 8px; border: 1px solid #e2e8f0; display: none;
+}
+.webp-frames-panel.show { display: block; }
+.webp-frames-panel .frames-title { font-weight: 700; color: #334155; margin-bottom: 8px; font-size: 0.9rem; }
+.webp-frames-panel .frames-title::before { content: '🎬 '; }
+.webp-frames-panel .frames-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px; max-height: 240px; overflow-y: auto;
+}
+.webp-frames-panel .frame-item {
+    border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;
+    text-align: center; cursor: pointer; transition: border-color 0.2s;
+    background: repeating-conic-gradient(#f1f5f9 0% 25%, #fff 0% 50%) 50% / 8px 8px;
+}
+.webp-frames-panel .frame-item:hover { border-color: #667eea; }
+.webp-frames-panel .frame-item img { width: 100%; height: 60px; object-fit: contain; display: block; }
+.webp-frames-panel .frame-item .frame-label { font-size: 0.65rem; color: #64748b; padding: 2px; }
+.webp-frames-panel .frames-actions { margin-top: 8px; display: flex; gap: 6px; }
+.toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8); color: white; padding: 14px 24px;
+    border-radius: 10px; font-size: 0.95rem; opacity: 0; visibility: hidden;
+    transition: all 0.3s ease; z-index: 1000;
+}
+.toast.show { opacity: 1; visibility: visible; }
+@media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .panel.sidebar { max-height: none; overflow-y: visible; }
+    .preview-container { min-height: 400px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Image Crop Tool</h1>
+        <p>上传图片，框选裁剪区域，下载裁剪后的文件</p>
+    </div>
+
+    <div class="main">
+        <div class="panel sidebar">
+            <h2>上传图片文件</h2>
+            <div class="upload-area">
+                <input type="file" id="fileInput" accept=".svg,.png,.jpg,.jpeg,.gif,.webp,.bmp,.avif,.ico,.tiff,.tif,image/*" style="display: none;">
+                <label for="fileInput" class="upload-label">
+                    <span class="upload-icon">🖼️</span>
+                    <span class="upload-text">点击上传图片文件</span>
+                    <span class="upload-sub">支持 SVG / PNG / JPG / GIF / WebP / BMP / AVIF / ICO / TIFF</span>
+                </label>
+                <div class="upload-info" id="uploadInfo"></div>
+            </div>
+
+            <div class="viewbox-info" id="viewboxInfo">
+                <span id="vbLabel">原始尺寸</span>: <code id="vbDisplay">-</code>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="crop">✂️ 裁剪</button>
+                <button class="tab-btn" data-tab="compress">📦 压缩</button>
+                <button class="tab-btn" data-tab="sprite">🎯 精灵图</button>
+            </div>
+
+            <div class="tab-content active" id="tab-crop">
+                <h2 id="cropParamTitle">裁剪参数 (像素坐标)</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <div class="control-item">
+                            <label>X 起点</label>
+                            <input type="number" id="cropX" value="0" step="any">
+                        </div>
+                        <div class="control-item">
+                            <label>Y 起点</label>
+                            <input type="number" id="cropY" value="0" step="any">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-item">
+                            <label>宽度</label>
+                            <input type="number" id="cropW" value="0" step="any" min="1">
+                        </div>
+                        <div class="control-item">
+                            <label>高度</label>
+                            <input type="number" id="cropH" value="0" step="any" min="1">
+                        </div>
+                    </div>
+                    <div class="output-format-row" id="outputFormatRow">
+                        <label>输出格式</label>
+                        <select id="outputFormat">
+                            <option value="same">与原格式相同 (不支持则转PNG)</option>
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPEG</option>
+                            <option value="webp">WebP</option>
+                            <option value="svg">SVG (仅嵌入)</option>
+                        </select>
+                    </div>
+                    <div class="quality-row" id="qualityRow" style="display:none;">
+                        <label>质量</label>
+                        <input type="range" id="outputQuality" min="10" max="100" value="92" step="1">
+                        <span class="quality-val" id="qualityVal">92%</span>
+                    </div>
+                    <div id="rasterCropExtras" style="display:none;">
+                        <div style="margin-bottom:8px;">
+                            <label style="font-weight:600;color:#4a5568;font-size:0.9rem;display:block;margin-bottom:6px;">宽高比</label>
+                            <div class="ratio-presets">
+                                <button class="ratio-btn active" data-ratio="free">自由</button>
+                                <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                                <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                                <button class="ratio-btn" data-ratio="3:4">3:4</button>
+                                <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                                <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                                <button class="ratio-btn" data-ratio="2:1">2:1</button>
+                                <button class="ratio-btn" data-ratio="reset" title="重置宽高比和变换">🔄</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-weight:600;color:#4a5568;font-size:0.9rem;display:block;margin-bottom:6px;">变换</label>
+                            <div class="transform-btns">
+                                <button class="transform-btn" data-action="rotate-left" title="逆时针旋转90°">↺ 左旋</button>
+                                <button class="transform-btn" data-action="rotate-right" title="顺时针旋转90°">↻ 右旋</button>
+                                <button class="transform-btn" data-action="flip-h" title="水平翻转">↔ 水平翻转</button>
+                                <button class="transform-btn" data-action="flip-v" title="垂直翻转">↕ 垂直翻转</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="crop-preview-box" id="cropPreviewBox">
+                        <div class="preview-label">裁剪预览</div>
+                        <canvas id="cropPreviewCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button class="btn-success" id="downloadBtn">⬇️ 下载裁剪后的图片</button>
+                    <button class="btn-secondary" id="resetBtn">🔄 重置为全图</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-compress">
+                <div id="svgCompressSection">
+                    <h2>SVG 压缩优化</h2>
+                    <div class="compress-options" id="compressOptions">
+                        <div class="compress-option">
+                            <input type="checkbox" id="optComments" checked>
+                            <label for="optComments">移除注释</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optMetadata" checked>
+                            <label for="optMetadata">移除元数据</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optTitle" checked>
+                            <label for="optTitle">移除 title/desc</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optEmptyAttrs" checked>
+                            <label for="optEmptyAttrs">移除空属性</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optCleanupNum" checked>
+                            <label for="optCleanupNum">优化数值精度</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optCollapseGroups" checked>
+                            <label for="optCollapseGroups">合并冗余分组</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optConvertPath" checked>
+                            <label for="optConvertPath">优化路径数据</label>
+                        </div>
+                        <div class="compress-option">
+                            <input type="checkbox" id="optRemoveEditor" checked>
+                            <label for="optRemoveEditor">移除编辑器数据</label>
+                        </div>
+                    </div>
+                    <div class="compress-result" id="compressResult">
+                        <div>原始: <strong id="origSize">-</strong> → 压缩后: <strong id="compSize">-</strong></div>
+                        <div>节省: <strong id="savedPct">-</strong></div>
+                        <div class="size-compare">
+                            <div class="size-bar"><div class="size-bar-inner" id="sizeBarInner"></div></div>
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <button class="btn-purple" id="compressBtn">📦 压缩并下载</button>
+                    </div>
+                </div>
+
+                <div id="rasterCompressSection" style="display:none;">
+                    <h2>图片压缩优化</h2>
+                    <div class="raster-compress-options">
+                        <div class="raster-compress-row">
+                            <label>输出格式</label>
+                            <select id="compFormat">
+                                <option value="webp">WebP (推荐，体积最小)</option>
+                                <option value="same">与原格式相同</option>
+                                <option value="png">PNG (无损，仅缩尺寸有效)</option>
+                                <option value="jpeg">JPEG (有损，适合照片)</option>
+                            </select>
+                        </div>
+                        <div class="raster-compress-row" id="qualityRow">
+                            <label>质量</label>
+                            <input type="range" id="compQuality" min="10" max="100" value="80" step="1" style="flex:1;accent-color:#8b5cf6;">
+                            <span id="compQualityVal" style="font-size:0.85rem;color:#8b5cf6;font-weight:600;min-width:36px;text-align:right;">80%</span>
+                        </div>
+                        <div class="raster-compress-row" id="estimateRow" style="display:none;">
+                            <label>预估大小</label>
+                            <span id="estimatedSize" style="font-size:0.85rem;color:#8b5cf6;font-weight:600;">-</span>
+                        </div>
+                        <div class="raster-compress-row">
+                            <label>目标大小</label>
+                            <input type="number" id="compMaxSize" placeholder="不限" min="1" step="1">
+                            <span class="unit">KB</span>
+                        </div>
+                        <div class="raster-compress-row">
+                            <label>最大宽度</label>
+                            <input type="number" id="compMaxWidth" placeholder="不限" min="1" step="1">
+                            <span class="unit">px</span>
+                        </div>
+                        <div class="raster-compress-row">
+                            <label>最大高度</label>
+                            <input type="number" id="compMaxHeight" placeholder="不限" min="1" step="1">
+                            <span class="unit">px</span>
+                        </div>
+                    </div>
+                    <div class="compress-result" id="rasterCompressResult">
+                        <div>原始: <strong id="rOrigSize">-</strong> → 压缩后: <strong id="rCompSize">-</strong></div>
+                        <div>节省: <strong id="rSavedPct">-</strong></div>
+                        <div class="size-compare">
+                            <div class="size-bar"><div class="size-bar-inner" id="rSizeBarInner"></div></div>
+                        </div>
+                    </div>
+                    <div class="compress-preview" id="compressPreview">
+                        <div class="compare-slider" id="compareSlider">
+                            <img id="previewCompImg" alt="压缩后">
+                            <div class="compare-orig" id="compareOrig">
+                                <img id="previewOrigImg" alt="原图">
+                            </div>
+                            <div class="compare-line" id="compareLine"></div>
+                            <div class="compare-handle" id="compareHandle"></div>
+                            <span class="compare-label compare-label-orig">原图</span>
+                            <span class="compare-label compare-label-comp">压缩后</span>
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <button class="btn-purple" id="rasterCompressBtn">📦 压缩并下载</button>
+                        <button class="btn-secondary btn-sm" id="multiFormatBtn">📊 多格式对比导出</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-sprite">
+                <h2>精灵图辅助定位</h2>
+
+                <div class="sprite-detect-bar">
+                    <div class="detect-field">
+                        <label>物品数量</label>
+                        <input type="number" id="spriteCount" value="5" min="1" max="50" step="1">
+                    </div>
+                    <div class="detect-field">
+                        <label>排列方式</label>
+                        <select id="spriteLayout">
+                            <option value="auto">自动判断</option>
+                            <option value="horizontal">横向排列</option>
+                            <option value="vertical">纵向排列</option>
+                            <option value="grid">网格排列</option>
+                            <option value="pixel" id="pixelDetectOption">像素检测 (透明间隙)</option>
+                            <option value="dom">DOM 结构 (仅SVG)</option>
+                        </select>
+                    </div>
+                    <button class="detect-btn" id="detectSpriteBtn">🔍 检测</button>
+                </div>
+
+                <div class="sprite-add-form" id="spriteAddForm">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>名称</label>
+                            <input type="text" id="addName" placeholder="sprite_01">
+                        </div>
+                        <div class="form-field">
+                            <label>X 起点</label>
+                            <input type="number" id="addX" value="0" step="any">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Y 起点</label>
+                            <input type="number" id="addY" value="0" step="any">
+                        </div>
+                        <div class="form-field">
+                            <label>宽度</label>
+                            <input type="number" id="addW" value="0" step="any" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>高度</label>
+                            <input type="number" id="addH" value="0" step="any" min="1">
+                        </div>
+                        <div class="form-field"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-purple btn-sm" id="addConfirmBtn">✅ 添加</button>
+                        <button class="btn-secondary btn-sm" id="addCancelBtn">取消</button>
+                    </div>
+                </div>
+
+                <div class="sprite-list" id="spriteList">
+                    <div class="sprite-empty">请先上传图片文件</div>
+                </div>
+                <div class="sprite-css-output" id="spriteCssOutput"></div>
+                <div class="buttons">
+                    <button class="btn-purple" id="copyCssBtn">📋 复制 CSS 代码</button>
+                    <button class="btn-orange" id="exportSheetBtn" style="display:none;">🗺️ 导出精灵图合图</button>
+                    <button class="btn-success" id="batchDownloadBtn" style="display:none;">⬇️ 批量下载全部</button>
+                    <div class="btn-row">
+                        <button class="btn-secondary btn-sm" id="addRegionBtn">➕ 自定义区域</button>
+                        <button class="btn-secondary btn-sm" id="clearAllBtn">🗑️ 清空全部</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel preview-panel">
+            <h2>裁剪预览</h2>
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-placeholder" id="placeholder">
+                    <span>🖼️</span>
+                    请先上传图片文件
+                </div>
+                <img id="cropImage">
+            </div>
+            <div class="info-bar">
+                <div class="info-item">
+                    <span>原始尺寸:</span>
+                    <strong id="originalSize">-</strong>
+                </div>
+                <div class="info-item">
+                    <span>格式:</span>
+                    <strong id="formatInfo">-</strong>
+                </div>
+                <div class="info-item">
+                    <span>缩放:</span>
+                    <strong id="zoomInfo">-</strong>
+                </div>
+                <div class="info-item">
+                    <span>裁剪区域:</span>
+                    <strong id="cropInfo">-</strong>
+                </div>
+            </div>
+            <div class="exif-panel" id="exifPanel">
+                <div class="exif-title" id="exifTitle">图片信息</div>
+                <div class="exif-grid" id="exifGrid"></div>
+            </div>
+            <div class="webp-frames-panel" id="webpFramesPanel">
+                <div class="frames-title" id="webpFramesTitle">动画帧</div>
+                <div class="frames-grid" id="webpFramesGrid"></div>
+                <div class="frames-actions">
+                    <button class="btn-secondary btn-sm" id="downloadAllFramesBtn">⬇ 下载全部帧</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="progress-overlay" id="progressOverlay">
+    <div class="progress-box">
+        <p id="progressText">处理中...</p>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script type="module">
+import { optimize } from 'https://esm.sh/svgo@3.3.2';
+window.svgoOptimize = optimize;
+</script>
+<script>
+(function() {
+    var cropImage = document.getElementById('cropImage');
+    var fileInput = document.getElementById('fileInput');
+    var uploadInfo = document.getElementById('uploadInfo');
+    var placeholder = document.getElementById('placeholder');
+    var cropXInput = document.getElementById('cropX');
+    var cropYInput = document.getElementById('cropY');
+    var cropWInput = document.getElementById('cropW');
+    var cropHInput = document.getElementById('cropH');
+    var viewboxInfo = document.getElementById('viewboxInfo');
+    var vbDisplay = document.getElementById('vbDisplay');
+    var vbLabel = document.getElementById('vbLabel');
+    var originalSizeEl = document.getElementById('originalSize');
+    var formatInfoEl = document.getElementById('formatInfo');
+    var zoomInfoEl = document.getElementById('zoomInfo');
+    var cropInfoEl = document.getElementById('cropInfo');
+    var toast = document.getElementById('toast');
+    var spriteList = document.getElementById('spriteList');
+    var spriteCssOutput = document.getElementById('spriteCssOutput');
+    var spriteAddForm = document.getElementById('spriteAddForm');
+    var outputFormatRow = document.getElementById('outputFormatRow');
+    var outputFormatSelect = document.getElementById('outputFormat');
+    var qualityRow = document.getElementById('qualityRow');
+    var outputQuality = document.getElementById('outputQuality');
+    var qualityVal = document.getElementById('qualityVal');
+    var cropParamTitle = document.getElementById('cropParamTitle');
+    var rasterCropExtras = document.getElementById('rasterCropExtras');
+    var svgCompressSection = document.getElementById('svgCompressSection');
+    var rasterCompressSection = document.getElementById('rasterCompressSection');
+    var exportSheetBtn = document.getElementById('exportSheetBtn');
+    var progressOverlay = document.getElementById('progressOverlay');
+    var progressText = document.getElementById('progressText');
+    var progressBarFill = document.getElementById('progressBarFill');
+    var cropPreviewBox = document.getElementById('cropPreviewBox');
+    var cropPreviewCanvas = document.getElementById('cropPreviewCanvas');
+
+    var svgText = null;
+    var currentFileName = 'image.png';
+    var currentFormat = null;
+    var currentBlobUrl = null;
+    var rasterDataUrl = null;
+    var rasterImageEl = null;
+    var originalFile = null;
+    var cropper = null;
+    var vbX = 0, vbY = 0, vbW = 0, vbH = 0;
+    var naturalW = 0, naturalH = 0;
+    var isUpdatingFromCropper = false;
+    var isUpdatingFromInput = false;
+    var spriteRegions = [];
+    var regionCounter = 0;
+    var activeSpriteIdx = -1;
+    var currentRotation = 0;
+    var currentScaleX = 1;
+    var currentScaleY = 1;
+    var cropPreviewRAF = null;
+    var undoStack = [];
+    var redoStack = [];
+    var maxUndoSteps = 30;
+    var isUndoRedoAction = false;
+
+    var FORMAT_MAP = {
+        'image/svg+xml': 'svg',
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/bmp': 'bmp',
+        'image/x-ms-bmp': 'bmp',
+        'image/avif': 'avif',
+        'image/x-icon': 'ico',
+        'image/vnd.microsoft.icon': 'ico',
+        'image/tiff': 'tiff',
+        'image/x-tiff': 'tiff'
+    };
+
+    var EXT_MAP = {
+        'svg': 'svg',
+        'png': 'png',
+        'jpg': 'jpg',
+        'jpeg': 'jpg',
+        'gif': 'gif',
+        'webp': 'webp',
+        'bmp': 'bmp',
+        'avif': 'avif',
+        'ico': 'ico',
+        'tiff': 'tiff',
+        'tif': 'tiff'
+    };
+
+    function detectFormat(file) {
+        if (file.type && FORMAT_MAP[file.type]) return FORMAT_MAP[file.type];
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (EXT_MAP[ext]) return EXT_MAP[ext];
+        return null;
+    }
+
+    function isSvg(fmt) { return fmt === 'svg'; }
+    function isRaster(fmt) { return fmt && fmt !== 'svg'; }
+
+    function getMimeType(fmt) {
+        var map = {
+            'svg': 'image/svg+xml',
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'gif': 'image/gif',
+            'webp': 'image/webp',
+            'bmp': 'image/bmp',
+            'avif': 'image/avif',
+            'ico': 'image/x-icon',
+            'tiff': 'image/tiff'
+        };
+        return map[fmt] || 'image/png';
+    }
+
+    function getExt(fmt) {
+        var map = { 'jpg': 'jpg', 'jpeg': 'jpg', 'tiff': 'tiff' };
+        return map[fmt] || fmt;
+    }
+
+    function syncActiveSpriteRegion(x, y, w, h) {
+        if (activeSpriteIdx < 0 || activeSpriteIdx >= spriteRegions.length) return;
+        spriteRegions[activeSpriteIdx].x = x;
+        spriteRegions[activeSpriteIdx].y = y;
+        spriteRegions[activeSpriteIdx].w = w;
+        spriteRegions[activeSpriteIdx].h = h;
+        var item = spriteList.querySelector('.sprite-item[data-idx="' + activeSpriteIdx + '"]');
+        if (item) {
+            var coordsEl = item.querySelector('.sprite-item-coords');
+            if (coordsEl) { coordsEl.textContent = r(x) + ', ' + r(y) + ' | ' + r(w) + ' x ' + r(h); }
+        }
+        updateCssOutput();
+    }
+
+    function updateZoomDisplay() {
+        if (!cropper) return;
+        try {
+            var imgData = cropper.getImageData();
+            if (imgData && imgData.naturalWidth && imgData.width) {
+                var scale = imgData.width / imgData.naturalWidth;
+                zoomInfoEl.textContent = (scale * 100).toFixed(0) + '%';
+            } else {
+                zoomInfoEl.textContent = '-';
+            }
+        } catch (e) {
+            zoomInfoEl.textContent = '-';
+        }
+    }
+
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    }
+
+    function r(val) {
+        return Math.round(val * 100) / 100;
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function parseViewBox(text) {
+        var match = text.match(/viewBox\s*=\s*"([^"]*)"/);
+        if (match) {
+            var parts = match[1].trim().split(/[\s,]+/);
+            if (parts.length >= 4) {
+                return { x: parseFloat(parts[0]), y: parseFloat(parts[1]), w: parseFloat(parts[2]), h: parseFloat(parts[3]) };
+            }
+        }
+        return null;
+    }
+
+    function pixelToViewBox(px, py, pw, ph) {
+        var scaleX = vbW / naturalW;
+        var scaleY = vbH / naturalH;
+        return { x: vbX + px * scaleX, y: vbY + py * scaleY, w: pw * scaleX, h: ph * scaleY };
+    }
+
+    function viewBoxToPixel(vx, vy, vw, vh) {
+        var scaleX = naturalW / vbW;
+        var scaleY = naturalH / vbH;
+        return { x: (vx - vbX) * scaleX, y: (vy - vbY) * scaleY, w: vw * scaleX, h: vh * scaleY };
+    }
+
+    function buildCroppedSvg(text, x, y, w, h) {
+        var gtPos = text.indexOf('>');
+        if (gtPos === -1) return text;
+        var openTag = text.substring(0, gtPos);
+        var rest = text.substring(gtPos);
+        openTag = openTag.replace(/\s+viewBox\s*=\s*"[^"]*"/i, '');
+        openTag = openTag.replace(/\s+width\s*=\s*"[^"]*"/i, '');
+        openTag = openTag.replace(/\s+height\s*=\s*"[^"]*"/i, '');
+        openTag += ' viewBox="' + r(x) + ' ' + r(y) + ' ' + r(w) + ' ' + r(h) + '"';
+        openTag += ' width="' + r(w) + '"';
+        openTag += ' height="' + r(h) + '"';
+        return openTag + rest;
+    }
+
+    function updateCropInfo() {
+        var x = parseFloat(cropXInput.value) || 0;
+        var y = parseFloat(cropYInput.value) || 0;
+        var w = parseFloat(cropWInput.value) || 0;
+        var h = parseFloat(cropHInput.value) || 0;
+        cropInfoEl.textContent = r(x) + ',' + r(y) + ' ' + r(w) + 'x' + r(h);
+    }
+
+    function updateFormatUI() {
+        var fmt = currentFormat;
+        formatInfoEl.textContent = fmt ? fmt.toUpperCase() : '-';
+
+        if (isSvg(fmt)) {
+            vbLabel.textContent = '原始 viewBox';
+            cropParamTitle.textContent = '裁剪参数 (viewBox 坐标)';
+            outputFormatRow.style.display = 'none';
+            qualityRow.style.display = 'none';
+            rasterCropExtras.style.display = 'none';
+            svgCompressSection.style.display = '';
+            rasterCompressSection.style.display = 'none';
+            document.querySelector('.tab-btn[data-tab="compress"]').classList.remove('disabled');
+            var domOption = document.querySelector('#spriteLayout option[value="dom"]');
+            if (domOption) domOption.disabled = false;
+            var pixelOption = document.getElementById('pixelDetectOption');
+            if (pixelOption) pixelOption.disabled = true;
+            cropPreviewBox.style.display = 'none';
+            exportSheetBtn.style.display = 'none';
+        } else {
+            vbLabel.textContent = '原始尺寸 (px)';
+            cropParamTitle.textContent = '裁剪参数 (像素坐标)';
+            outputFormatRow.style.display = 'flex';
+            rasterCropExtras.style.display = '';
+            svgCompressSection.style.display = 'none';
+            rasterCompressSection.style.display = '';
+            document.querySelector('.tab-btn[data-tab="compress"]').classList.remove('disabled');
+            var domOption = document.querySelector('#spriteLayout option[value="dom"]');
+            if (domOption) domOption.disabled = true;
+            var pixelOption = document.getElementById('pixelDetectOption');
+            if (pixelOption) pixelOption.disabled = false;
+            exportSheetBtn.style.display = spriteRegions.length > 0 ? '' : 'none';
+        }
+
+        updateQualityVisibility();
+    }
+
+    function updateQualityVisibility() {
+        var fmt = outputFormatSelect.value;
+        if (fmt === 'jpeg' || fmt === 'webp') {
+            qualityRow.style.display = 'flex';
+        } else {
+            qualityRow.style.display = 'none';
+        }
+    }
+
+    outputFormatSelect.addEventListener('change', updateQualityVisibility);
+    outputQuality.addEventListener('input', function() {
+        qualityVal.textContent = outputQuality.value + '%';
+    });
+
+    document.getElementById('compQuality').addEventListener('input', function() {
+        document.getElementById('compQualityVal').textContent = this.value + '%';
+        estimateCompressSize();
+    });
+
+    var estimateTimer = null;
+    function estimateCompressSize() {
+        if (!rasterImageEl) { document.getElementById('estimateRow').style.display = 'none'; return; }
+        var compFmt = document.getElementById('compFormat').value;
+        var targetFmt = compFmt === 'same' ? currentFormat : compFmt;
+        if (targetFmt === 'jpeg') targetFmt = 'jpg';
+        if (targetFmt === 'png') { document.getElementById('estimateRow').style.display = 'none'; return; }
+
+        document.getElementById('estimateRow').style.display = '';
+        document.getElementById('estimatedSize').textContent = '计算中...';
+
+        if (estimateTimer) clearTimeout(estimateTimer);
+        estimateTimer = setTimeout(function() {
+            var quality = parseInt(document.getElementById('compQuality').value) / 100;
+            var maxWidth = parseInt(document.getElementById('compMaxWidth').value) || 0;
+            var maxHeight = parseInt(document.getElementById('compMaxHeight').value) || 0;
+            var w = rasterImageEl.naturalWidth;
+            var h = rasterImageEl.naturalHeight;
+            if (maxWidth > 0 && w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+            if (maxHeight > 0 && h > maxHeight) { w = Math.round(w * maxHeight / h); h = maxHeight; }
+            w = Math.max(1, w); h = Math.max(1, h);
+
+            var canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            if (targetFmt === 'jpg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h); }
+            ctx.drawImage(rasterImageEl, 0, 0, w, h);
+            canvas.toBlob(function(blob) {
+                if (blob) {
+                    document.getElementById('estimatedSize').textContent = formatBytes(blob.size);
+                } else {
+                    document.getElementById('estimatedSize').textContent = '-';
+                }
+            }, getMimeType(targetFmt), quality);
+        }, 300);
+    }
+
+    document.getElementById('compFormat').addEventListener('change', function() {
+        var fmt = this.value;
+        var qualityRow = document.getElementById('qualityRow');
+        var resolvedFmt = fmt === 'same' ? currentFormat : fmt;
+        if (resolvedFmt === 'png') {
+            qualityRow.style.display = 'none';
+        } else {
+            qualityRow.style.display = '';
+        }
+    });
+
+    document.querySelectorAll('.ratio-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (!cropper) return;
+            var ratio = btn.getAttribute('data-ratio');
+            if (ratio === 'reset') {
+                document.querySelectorAll('.ratio-btn').forEach(function(b) { b.classList.remove('active'); });
+                document.querySelector('.ratio-btn[data-ratio="free"]').classList.add('active');
+                cropper.setAspectRatio(NaN);
+                currentRotation = 0;
+                currentScaleX = 1;
+                currentScaleY = 1;
+                cropper.rotate(0);
+                cropper.scaleX(1);
+                cropper.scaleY(1);
+                cropper.reset();
+                var resetData = cropper.getData(true);
+                var resetVb = pixelToViewBox(resetData.x, resetData.y, resetData.width, resetData.height);
+                pushUndoState(resetVb.x, resetVb.y, resetVb.w, resetVb.h, 0, 1, 1);
+                showToast('已重置宽高比和变换');
+                return;
+            }
+            document.querySelectorAll('.ratio-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            if (ratio === 'free') {
+                cropper.setAspectRatio(NaN);
+            } else {
+                var parts = ratio.split(':');
+                cropper.setAspectRatio(parseInt(parts[0]) / parseInt(parts[1]));
+            }
+        });
+    });
+
+    document.querySelectorAll('.transform-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (!cropper) return;
+            var action = btn.getAttribute('data-action');
+            var data = cropper.getData(true);
+            var vb = pixelToViewBox(data.x, data.y, data.width, data.height);
+            if (action === 'rotate-left') { cropper.rotate(-90); currentRotation -= 90; }
+            else if (action === 'rotate-right') { cropper.rotate(90); currentRotation += 90; }
+            else if (action === 'flip-h') { currentScaleX *= -1; cropper.scaleX(currentScaleX); }
+            else if (action === 'flip-v') { currentScaleY *= -1; cropper.scaleY(currentScaleY); }
+            pushUndoState(vb.x, vb.y, vb.w, vb.h, currentRotation, currentScaleX, currentScaleY);
+        });
+    });
+
+    var webpFrames = [];
+
+    function extractWebPFrames(file) {
+        var panel = document.getElementById('webpFramesPanel');
+        panel.classList.remove('show');
+        webpFrames = [];
+
+        if (currentFormat !== 'webp') return;
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var data = new Uint8Array(e.target.result);
+            if (!checkWebPAnimated(data)) return;
+
+            var anmfChunks = collectANMFChunks(data);
+            if (anmfChunks.length === 0) return;
+
+            var canvasW = 0, canvasH = 0;
+            var offset = 12;
+            while (offset < data.length - 8) {
+                var cid = String.fromCharCode(data[offset], data[offset+1], data[offset+2], data[offset+3]);
+                var csz = data[offset+4] | (data[offset+5]<<8) | (data[offset+6]<<16) | (data[offset+7]<<24);
+                if (cid === 'VP8 ') {
+                    var d = parseVP8Dims(data.slice(offset+8, offset+8+csz));
+                    if (d) { canvasW = d.w; canvasH = d.h; }
+                }
+                if (cid === 'VP8L') {
+                    var d2 = parseVP8LDims(data.slice(offset+8, offset+8+csz));
+                    if (d2) { canvasW = d2.w; canvasH = d2.h; }
+                }
+                offset += 8 + csz + (csz % 2);
+                if (csz === 0) break;
+            }
+
+            var promises = anmfChunks.map(function(chunk) {
+                return renderANMFFrame(chunk, canvasW, canvasH);
+            });
+
+            Promise.all(promises).then(function(results) {
+                var frames = results.filter(function(f) { return f !== null; });
+                if (frames.length === 0) return;
+                webpFrames = frames;
+                var title = document.getElementById('webpFramesTitle');
+                title.textContent = '动画帧 (' + frames.length + '帧)';
+                panel.classList.add('show');
+                var grid = document.getElementById('webpFramesGrid');
+                var html = '';
+                for (var i = 0; i < frames.length; i++) {
+                    html += '<div class="frame-item" data-frame="' + i + '">';
+                    html += '<img src="' + frames[i].dataUrl + '">';
+                    html += '<div class="frame-label">帧 ' + (i + 1) + '</div>';
+                    html += '</div>';
+                }
+                grid.innerHTML = html;
+                grid.querySelectorAll('.frame-item').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        var idx = parseInt(item.getAttribute('data-frame'));
+                        var a = document.createElement('a');
+                        a.href = webpFrames[idx].dataUrl;
+                        a.download = currentFileName.replace(/\.webp$/i, '') + '_frame_' + (idx + 1) + '.png';
+                        a.click();
+                    });
+                });
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function checkWebPAnimated(data) {
+        if (data.length < 20) return false;
+        if (data[0] !== 0x52 || data[1] !== 0x49 || data[2] !== 0x46 || data[3] !== 0x46) return false;
+        if (data[8] !== 0x57 || data[9] !== 0x45 || data[10] !== 0x42 || data[11] !== 0x50) return false;
+        var offset = 12;
+        while (offset < data.length - 8) {
+            var chunkId = String.fromCharCode(data[offset], data[offset+1], data[offset+2], data[offset+3]);
+            var chunkSize = data[offset+4] | (data[offset+5]<<8) | (data[offset+6]<<16) | (data[offset+7]<<24);
+            if (chunkId === 'ANIM') return true;
+            offset += 8 + chunkSize + (chunkSize % 2);
+            if (chunkSize === 0) break;
+        }
+        return false;
+    }
+
+    function collectANMFChunks(data) {
+        var chunks = [];
+        var offset = 12;
+        while (offset < data.length - 8) {
+            var chunkId = String.fromCharCode(data[offset], data[offset+1], data[offset+2], data[offset+3]);
+            var chunkSize = data[offset+4] | (data[offset+5]<<8) | (data[offset+6]<<16) | (data[offset+7]<<24);
+            if (chunkId === 'ANMF') {
+                chunks.push(data.slice(offset + 8, offset + 8 + chunkSize));
+            }
+            offset += 8 + chunkSize + (chunkSize % 2);
+            if (chunkSize === 0) break;
+        }
+        return chunks;
+    }
+
+    function renderANMFFrame(frameData, canvasW, canvasH) {
+        return new Promise(function(resolve) {
+            try {
+                var fx = (frameData[0] | (frameData[1] << 8) | (frameData[2] << 16)) & 0xFFFFFF;
+                var fy = (frameData[3] | (frameData[4] << 8) | (frameData[5] << 16)) & 0xFFFFFF;
+                var fw = ((frameData[6] | (frameData[7] << 8) | (frameData[8] << 16)) & 0xFFFFFF) + 1;
+                var fh = ((frameData[9] | (frameData[10] << 8) | (frameData[11] << 16)) & 0xFFFFFF) + 1;
+
+                var subOffset = 16;
+                var subChunkId = '';
+                if (subOffset + 8 <= frameData.length) {
+                    subChunkId = String.fromCharCode(frameData[subOffset], frameData[subOffset+1], frameData[subOffset+2], frameData[subOffset+3]);
+                }
+
+                var frameBlob;
+                if (subChunkId === 'VP8 ' || subChunkId === 'VP8L') {
+                    var subSize = frameData[subOffset+4] | (frameData[subOffset+5]<<8) | (frameData[subOffset+6]<<16) | (frameData[subOffset+7]<<24);
+                    var paddedSize = subSize + (subSize % 2);
+                    var riffBuf = new Uint8Array(12 + 8 + paddedSize);
+                    riffBuf[0]=0x52; riffBuf[1]=0x49; riffBuf[2]=0x46; riffBuf[3]=0x46;
+                    var totalSize = 8 + paddedSize;
+                    riffBuf[4]=totalSize&0xFF; riffBuf[5]=(totalSize>>8)&0xFF; riffBuf[6]=(totalSize>>16)&0xFF; riffBuf[7]=(totalSize>>24)&0xFF;
+                    riffBuf[8]=0x57; riffBuf[9]=0x45; riffBuf[10]=0x42; riffBuf[11]=0x50;
+                    for (var i = 0; i < 8; i++) riffBuf[12+i] = frameData[subOffset+i];
+                    var pixelStart = subOffset + 8;
+                    for (var i = 0; i < subSize; i++) riffBuf[20+i] = frameData[pixelStart+i];
+                    frameBlob = new Blob([riffBuf], { type: 'image/webp' });
+                } else {
+                    frameBlob = new Blob([frameData], { type: 'image/webp' });
+                }
+
+                var url = URL.createObjectURL(frameBlob);
+                var img = new Image();
+                img.onload = function() {
+                    var c = document.createElement('canvas');
+                    c.width = fw; c.height = fh;
+                    var ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, fw, fh);
+                    resolve({ dataUrl: c.toDataURL('image/png'), x: fx, y: fy, w: fw, h: fh });
+                    URL.revokeObjectURL(url);
+                };
+                img.onerror = function() {
+                    resolve(null);
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+            } catch(e) { resolve(null); }
+        });
+    }
+
+    function parseVP8Dims(vp8) {
+        try {
+            if (vp8.length < 10) return null;
+            if (vp8[3] !== 0x9D || vp8[4] !== 0x01 || vp8[5] !== 0x2A) return null;
+            var w = vp8[6] | ((vp8[7] & 0x3F) << 8);
+            var h = (vp8[7] >> 6) | (vp8[8] << 2) | ((vp8[9] & 0x3F) << 10);
+            return { w: w, h: h };
+        } catch(e) { return null; }
+    }
+
+    function parseVP8LDims(vp8l) {
+        try {
+            if (vp8l.length < 5) return null;
+            if (vp8l[0] !== 0x2F) return null;
+            var b = vp8l[1] | (vp8l[2] << 8) | (vp8l[3] << 16) | (vp8l[4] << 24);
+            var w = (b & 0x3FFF) + 1;
+            var h = ((b >> 14) & 0x3FFF) + 1;
+            return { w: w, h: h };
+        } catch(e) { return null; }
+    }
+
+    function readExifData(file) {
+        var exifPanel = document.getElementById('exifPanel');
+        var exifGrid = document.getElementById('exifGrid');
+        var exifTitle = document.getElementById('exifTitle');
+        exifPanel.classList.remove('show');
+
+        var fields = [];
+        fields.push({ label: '文件名', value: file.name });
+        fields.push({ label: '大小', value: formatBytes(file.size) });
+        fields.push({ label: '类型', value: file.type || '未知' });
+        fields.push({ label: '修改时间', value: file.lastModifiedDate ? file.lastModifiedDate.toLocaleString() : '-' });
+
+        if (rasterImageEl) {
+            fields.push({ label: '宽度', value: rasterImageEl.naturalWidth + 'px' });
+            fields.push({ label: '高度', value: rasterImageEl.naturalHeight + 'px' });
+            var mp = (rasterImageEl.naturalWidth * rasterImageEl.naturalHeight / 1000000).toFixed(2);
+            fields.push({ label: '像素', value: mp + 'MP' });
+        }
+
+        if (file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = new Uint8Array(e.target.result);
+                var exif = parseExif(data);
+                if (exif) {
+                    if (exif.Make) fields.push({ label: '相机', value: (exif.Make || '') + ' ' + (exif.Model || '') });
+                    if (exif.DateTime) fields.push({ label: '拍摄时间', value: exif.DateTime });
+                    if (exif.ExposureTime) fields.push({ label: '快门', value: '1/' + Math.round(1 / exif.ExposureTime) + 's' });
+                    if (exif.FNumber) fields.push({ label: '光圈', value: 'f/' + exif.FNumber.toFixed(1) });
+                    if (exif.ISO) fields.push({ label: 'ISO', value: exif.ISO });
+                    if (exif.FocalLength) fields.push({ label: '焦距', value: exif.FocalLength + 'mm' });
+                    if (exif.Software) fields.push({ label: '软件', value: exif.Software });
+                    if (exif.Orientation) fields.push({ label: '方向', value: exif.Orientation });
+                }
+                renderExifFields(fields);
+            };
+            reader.readAsArrayBuffer(file.slice(0, 65536));
+        } else {
+            renderExifFields(fields);
+        }
+    }
+
+    function renderExifFields(fields) {
+        var exifPanel = document.getElementById('exifPanel');
+        var exifGrid = document.getElementById('exifGrid');
+        var exifTitle = document.getElementById('exifTitle');
+
+        if (fields.length === 0) return;
+        exifPanel.classList.add('show');
+
+        var html = '';
+        for (var i = 0; i < fields.length; i++) {
+            html += '<div class="exif-field"><span class="exif-label">' + fields[i].label + ':</span><span class="exif-value">' + fields[i].value + '</span></div>';
+        }
+        exifGrid.innerHTML = html;
+
+        var expanded = true;
+        exifTitle.onclick = function() {
+            expanded = !expanded;
+            exifGrid.style.display = expanded ? '' : 'none';
+        };
+    }
+
+    function parseExif(data) {
+        try {
+            if (data[0] !== 0xFF || data[1] !== 0xD8) return null;
+            var offset = 2;
+            while (offset < data.length - 1) {
+                if (data[offset] !== 0xFF) break;
+                var marker = data[offset + 1];
+                if (marker === 0xE1) {
+                    return parseExifAPP1(data, offset + 4);
+                }
+                var len = (data[offset + 2] << 8) | data[offset + 3];
+                offset += 2 + len;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function parseExifAPP1(data, offset) {
+        if (data[offset] !== 0x45 || data[offset + 1] !== 0x78 || data[offset + 2] !== 0x69 || data[offset + 3] !== 0x66) return null;
+        offset += 6;
+        var byteOrder = (data[offset] << 8) | data[offset + 1];
+        var littleEndian = (byteOrder === 0x4949);
+        offset += 2;
+        offset += 2;
+        var ifdOffset = getU32(data, offset, littleEndian);
+        offset += 4;
+        return parseIFD(data, offset + ifdOffset - 8, littleEndian, offset - 8);
+    }
+
+    function parseIFD(data, offset, le, base) {
+        var result = {};
+        var count = getU16(data, offset, le);
+        offset += 2;
+        var tagMap = {
+            0x010F: 'Make', 0x0110: 'Model', 0x0112: 'Orientation',
+            0x0131: 'Software', 0x0132: 'DateTime',
+            0x829A: 'ExposureTime', 0x829D: 'FNumber',
+            0x8827: 'ISO', 0x920A: 'FocalLength'
+        };
+        for (var i = 0; i < count; i++) {
+            var tag = getU16(data, offset, le);
+            var type = getU16(data, offset + 2, le);
+            var count2 = getU32(data, offset + 4, le);
+            var valOffset = offset + 8;
+            var name = tagMap[tag];
+            if (name) {
+                var val = readTagValue(data, valOffset, type, count2, le, base);
+                if (val !== null) result[name] = val;
+            }
+            offset += 12;
+        }
+        return result;
+    }
+
+    function readTagValue(data, offset, type, count, le, base) {
+        if (type === 2) {
+            var strOff = count > 4 ? getU32(data, offset, le) + base : offset;
+            var s = '';
+            for (var i = 0; i < count - 1 && strOff + i < data.length; i++) {
+                s += String.fromCharCode(data[strOff + i]);
+            }
+            return s;
+        }
+        if (type === 3) {
+            return count === 1 ? getU16(data, offset, le) : getU16(data, getU32(data, offset, le) + base, le);
+        }
+        if (type === 4) {
+            return count === 1 ? getU32(data, offset, le) : getU32(data, getU32(data, offset, le) + base, le);
+        }
+        if (type === 5) {
+            var off = count === 1 ? offset : getU32(data, offset, le) + base;
+            var num = getU32(data, off, le);
+            var den = getU32(data, off + 4, le);
+            return den > 0 ? num / den : 0;
+        }
+        return null;
+    }
+
+    function getU16(data, off, le) { return le ? (data[off] | (data[off+1] << 8)) : ((data[off] << 8) | data[off+1]); }
+    function getU32(data, off, le) { return le ? (data[off] | (data[off+1]<<8) | (data[off+2]<<16) | (data[off+3]<<24)) : ((data[off]<<24) | (data[off+1]<<16) | (data[off+2]<<8) | data[off+3]); }
+
+    function handleFileUpload(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+
+        var fmt = detectFormat(file);
+        if (!fmt) {
+            showToast('不支持的文件格式！');
+            return;
+        }
+
+        currentFileName = file.name;
+        currentFormat = fmt;
+        originalFile = file;
+        svgText = null;
+        rasterDataUrl = null;
+        rasterImageEl = null;
+        currentRotation = 0;
+        currentScaleX = 1;
+        currentScaleY = 1;
+
+        if (isSvg(fmt)) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                svgText = ev.target.result;
+                var vb = parseViewBox(svgText);
+                if (vb) { vbX = vb.x; vbY = vb.y; vbW = vb.w; vbH = vb.h; }
+                else {
+                    var wMatch = svgText.match(/\swidth\s*=\s*"([^"]*)"/);
+                    var hMatch = svgText.match(/\sheight\s*=\s*"([^"]*)"/);
+                    vbW = wMatch ? parseFloat(wMatch[1]) : 800;
+                    vbH = hMatch ? parseFloat(hMatch[1]) : 600;
+                    vbX = 0; vbY = 0;
+                }
+                vbDisplay.textContent = r(vbX) + ' ' + r(vbY) + ' ' + r(vbW) + ' ' + r(vbH);
+                viewboxInfo.style.display = 'block';
+                if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); }
+                var blob = new Blob([svgText], { type: 'image/svg+xml' });
+                currentBlobUrl = URL.createObjectURL(blob);
+                if (cropper) { cropper.destroy(); cropper = null; }
+                placeholder.style.display = 'none';
+                cropImage.src = currentBlobUrl;
+                updateFormatUI();
+                detectSpriteRegions();
+            };
+            reader.readAsText(file);
+        } else {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                rasterDataUrl = ev.target.result;
+                var img = new Image();
+                img.onload = function() {
+                    rasterImageEl = img;
+                    vbX = 0; vbY = 0;
+                    vbW = img.naturalWidth;
+                    vbH = img.naturalHeight;
+                    vbDisplay.textContent = r(vbW) + ' x ' + r(vbH);
+                    viewboxInfo.style.display = 'block';
+                    if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); }
+                    currentBlobUrl = rasterDataUrl;
+                    if (cropper) { cropper.destroy(); cropper = null; }
+                    placeholder.style.display = 'none';
+                    cropImage.src = currentBlobUrl;
+                    updateFormatUI();
+                    detectSpriteRegions();
+                    readExifData(file);
+                    extractWebPFrames(file);
+                };
+                img.onerror = function() {
+                    showToast('图片加载失败，格式可能不受浏览器支持');
+                };
+                img.src = rasterDataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        var badgeClass = fmt;
+        if (!['svg','png','jpg','gif','webp','bmp','avif','ico','tiff'].includes(fmt)) badgeClass = 'other';
+        uploadInfo.innerHTML = '已上传: ' + file.name + ' <span class="format-badge ' + badgeClass + '">' + fmt.toUpperCase() + '</span>';
+        uploadInfo.style.display = 'block';
+    }
+
+    cropImage.addEventListener('load', function() {
+        naturalW = cropImage.naturalWidth;
+        naturalH = cropImage.naturalHeight;
+        if (!naturalW || !naturalH) { naturalW = vbW; naturalH = vbH; }
+        originalSizeEl.textContent = naturalW + ' x ' + naturalH;
+        if (cropper) { cropper.destroy(); }
+        cropper = new Cropper(cropImage, {
+            viewMode: 1, dragMode: 'move', aspectRatio: NaN,
+            autoCropArea: 1, restore: false, guides: true, center: true,
+            highlight: true, cropBoxMovable: true, cropBoxResizable: true,
+            toggleDragModeOnDblclick: true, background: true, responsive: true,
+            ready: function() {
+                var pixel = viewBoxToPixel(vbX, vbY, vbW, vbH);
+                cropper.setData({ x: pixel.x, y: pixel.y, width: pixel.w, height: pixel.h });
+                updateZoomDisplay();
+            },
+            crop: function(event) {
+                if (isUpdatingFromInput) return;
+                isUpdatingFromCropper = true;
+                var data = cropper.getData(true);
+                var vb = pixelToViewBox(data.x, data.y, data.width, data.height);
+                if (!isUndoRedoAction) pushUndoState(vb.x, vb.y, vb.w, vb.h);
+                cropXInput.value = r(vb.x); cropYInput.value = r(vb.y);
+                cropWInput.value = r(vb.w); cropHInput.value = r(vb.h);
+                updateCropInfo();
+                updateZoomDisplay();
+                syncActiveSpriteRegion(vb.x, vb.y, vb.w, vb.h);
+                if (isRaster(currentFormat)) {
+                    if (cropPreviewRAF) cancelAnimationFrame(cropPreviewRAF);
+                    cropPreviewRAF = requestAnimationFrame(updateCropPreview);
+                }
+                isUpdatingFromCropper = false;
+                isUndoRedoAction = false;
+            },
+            zoom: function(event) {
+                updateZoomDisplay();
+            }
+        });
+    });
+
+    [cropXInput, cropYInput, cropWInput, cropHInput].forEach(function(input) {
+        input.addEventListener('input', function() {
+            if (isUpdatingFromCropper || !cropper) return;
+            isUpdatingFromInput = true;
+            var vx = parseFloat(cropXInput.value) || 0;
+            var vy = parseFloat(cropYInput.value) || 0;
+            var vw = parseFloat(cropWInput.value) || 1;
+            var vh = parseFloat(cropHInput.value) || 1;
+            var pixel = viewBoxToPixel(vx, vy, vw, vh);
+            cropper.setData({ x: pixel.x, y: pixel.y, width: pixel.w, height: pixel.h });
+            updateCropInfo();
+            syncActiveSpriteRegion(vx, vy, vw, vh);
+            if (isRaster(currentFormat)) {
+                if (cropPreviewRAF) cancelAnimationFrame(cropPreviewRAF);
+                cropPreviewRAF = requestAnimationFrame(updateCropPreview);
+            }
+            isUpdatingFromInput = false;
+        });
+    });
+
+    function downloadCropped() {
+        if (!currentFormat) { showToast('请先上传图片文件！'); return; }
+        var x = parseFloat(cropXInput.value) || 0;
+        var y = parseFloat(cropYInput.value) || 0;
+        var w = parseFloat(cropWInput.value) || 1;
+        var h = parseFloat(cropHInput.value) || 1;
+
+        if (isSvg(currentFormat)) {
+            downloadCroppedSvg(x, y, w, h);
+        } else {
+            downloadCroppedRaster(x, y, w, h);
+        }
+    }
+
+    function downloadCroppedSvg(x, y, w, h) {
+        if (!svgText) { showToast('请先上传 SVG 文件！'); return; }
+        var newSvg = buildCroppedSvg(svgText, x, y, w, h);
+        var blob = new Blob([newSvg], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+        link.download = baseName + '_crop_' + r(x) + '_' + r(y) + '_' + r(w) + '_' + r(h) + '.svg';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('SVG 文件已下载！');
+    }
+
+    function isCanvasSupportedFormat(fmt) {
+        return fmt === 'png' || fmt === 'jpg' || fmt === 'webp';
+    }
+
+    function downloadCroppedRaster(x, y, w, h) {
+        if (!rasterImageEl) { showToast('图片尚未加载完成！'); return; }
+
+        var outFmt = outputFormatSelect.value;
+        var sourceFmt = currentFormat;
+
+        if (outFmt === 'svg') {
+            var svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="' + r(w) + '" height="' + r(h) + '" viewBox="0 0 ' + r(w) + ' ' + r(h) + '">';
+            svgContent += '<image href="' + rasterDataUrl + '" x="' + r(-x) + '" y="' + r(-y) + '" width="' + r(vbW) + '" height="' + r(vbH) + '"/>';
+            svgContent += '</svg>';
+            var blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+            link.download = baseName + '_crop.svg';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('SVG 文件已下载！');
+            return;
+        }
+
+        var targetFmt = outFmt === 'same' ? sourceFmt : outFmt;
+        if (targetFmt === 'jpeg') targetFmt = 'jpg';
+        if (!isCanvasSupportedFormat(targetFmt)) targetFmt = 'png';
+        var mimeType = getMimeType(targetFmt);
+        var quality = (targetFmt === 'jpg' || targetFmt === 'webp') ? parseInt(outputQuality.value) / 100 : undefined;
+
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(w));
+        canvas.height = Math.max(1, Math.round(h));
+        var ctx = canvas.getContext('2d');
+
+        if (targetFmt === 'jpg') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.drawImage(rasterImageEl, x, y, w, h, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(function(blob) {
+            if (!blob) { showToast('导出失败，浏览器可能不支持该格式'); return; }
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+            var ext = getExt(targetFmt);
+            link.download = baseName + '_crop_' + r(x) + '_' + r(y) + '_' + r(w) + '_' + r(h) + '.' + ext;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(targetFmt.toUpperCase() + ' 文件已下载！');
+        }, mimeType, quality);
+    }
+
+    function resetCrop() {
+        if (!cropper) return;
+        activeSpriteIdx = -1;
+        currentRotation = 0;
+        currentScaleX = 1;
+        currentScaleY = 1;
+        isUpdatingFromInput = true;
+        var pixel = viewBoxToPixel(vbX, vbY, vbW, vbH);
+        cropper.setData({ x: pixel.x, y: pixel.y, width: pixel.w, height: pixel.h });
+        cropper.setAspectRatio(NaN);
+        cropper.rotate(0);
+        cropper.scaleX(1);
+        cropper.scaleY(1);
+        document.querySelectorAll('.ratio-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelector('.ratio-btn[data-ratio="free"]').classList.add('active');
+        isUpdatingFromInput = false;
+        updateCropInfo();
+        pushUndoState(vbX, vbY, vbW, vbH, 0, 1, 1);
+    }
+
+    function compressSvg() {
+        if (!isSvg(currentFormat)) { showToast('压缩功能仅支持 SVG 格式！'); return; }
+        if (!svgText) { showToast('请先上传 SVG 文件！'); return; }
+        if (!window.svgoOptimize) { showToast('SVGO 正在加载，请稍后重试...'); return; }
+        var plugins = [];
+        if (document.getElementById('optComments').checked) plugins.push('removeComments');
+        if (document.getElementById('optMetadata').checked) plugins.push('removeMetadata');
+        if (document.getElementById('optTitle').checked) { plugins.push('removeTitle'); plugins.push('removeDesc'); }
+        if (document.getElementById('optEmptyAttrs').checked) plugins.push('removeEmptyAttrs');
+        if (document.getElementById('optCleanupNum').checked) plugins.push('cleanupNumericValues');
+        if (document.getElementById('optCollapseGroups').checked) plugins.push('collapseGroups');
+        if (document.getElementById('optConvertPath').checked) plugins.push('convertPathData');
+        if (document.getElementById('optRemoveEditor').checked) { plugins.push('removeEditorsNSData'); plugins.push('removeXMLProcInst'); }
+        if (plugins.length === 0) plugins = ['preset-default'];
+        try {
+            var result = window.svgoOptimize(svgText, { plugins: plugins, floatPrecision: 2 });
+            var origLen = new Blob([svgText]).size;
+            var compLen = new Blob([result.data]).size;
+            var savedPct = ((1 - compLen / origLen) * 100).toFixed(1);
+            document.getElementById('origSize').textContent = formatBytes(origLen);
+            document.getElementById('compSize').textContent = formatBytes(compLen);
+            document.getElementById('savedPct').textContent = savedPct + '%';
+            document.getElementById('sizeBarInner').style.width = (compLen / origLen * 100) + '%';
+            document.getElementById('compressResult').style.display = 'block';
+            var blob = new Blob([result.data], { type: 'image/svg+xml;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+            link.download = baseName + '_optimized.svg';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('压缩完成！节省 ' + savedPct + '%');
+        } catch (err) { showToast('压缩失败: ' + err.message); }
+    }
+
+    function showProgress(text, pct) {
+        progressText.textContent = text;
+        progressBarFill.style.width = pct + '%';
+        progressOverlay.classList.add('show');
+    }
+
+    function hideProgress() {
+        progressOverlay.classList.remove('show');
+    }
+
+    function updateCropPreview() {
+        if (isSvg(currentFormat)) { cropPreviewBox.style.display = 'none'; return; }
+        if (!rasterImageEl) return;
+        var x = parseFloat(cropXInput.value) || 0;
+        var y = parseFloat(cropYInput.value) || 0;
+        var w = parseFloat(cropWInput.value) || 1;
+        var h = parseFloat(cropHInput.value) || 1;
+        if (w <= 0 || h <= 0) { cropPreviewBox.style.display = 'none'; return; }
+
+        cropPreviewBox.style.display = 'block';
+        var maxW = 340;
+        var scale = Math.min(maxW / w, 1);
+        var canvasW = Math.round(w * scale);
+        var canvasH = Math.round(h * scale);
+        cropPreviewCanvas.width = canvasW;
+        cropPreviewCanvas.height = canvasH;
+        var ctx = cropPreviewCanvas.getContext('2d');
+        ctx.clearRect(0, 0, canvasW, canvasH);
+        ctx.drawImage(rasterImageEl, x, y, w, h, 0, 0, canvasW, canvasH);
+    }
+
+    function initCompareSlider() {
+        var slider = document.getElementById('compareSlider');
+        var origClip = document.getElementById('compareOrig');
+        var line = document.getElementById('compareLine');
+        var handle = document.getElementById('compareHandle');
+        if (!slider || !origClip || !line || !handle) return;
+
+        var pct = 50;
+        function updateSlider() {
+            origClip.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+            line.style.left = pct + '%';
+            handle.style.left = 'calc(' + pct + '% - 14px)';
+        }
+        updateSlider();
+
+        var dragging = false;
+        slider.addEventListener('mousedown', function(e) { dragging = true; moveSlider(e); });
+        slider.addEventListener('touchstart', function(e) { dragging = true; moveSlider(e.touches[0]); }, { passive: true });
+        document.addEventListener('mousemove', function(e) { if (dragging) moveSlider(e); });
+        document.addEventListener('touchmove', function(e) { if (dragging) moveSlider(e.touches[0]); }, { passive: true });
+        document.addEventListener('mouseup', function() { dragging = false; });
+        document.addEventListener('touchend', function() { dragging = false; });
+
+        function moveSlider(e) {
+            var rect = slider.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            updateSlider();
+        }
+    }
+
+    function pushUndoState(x, y, w, h, rotation, scaleX, scaleY) {
+        rotation = rotation !== undefined ? rotation : currentRotation;
+        scaleX = scaleX !== undefined ? scaleX : currentScaleX;
+        scaleY = scaleY !== undefined ? scaleY : currentScaleY;
+        if (undoStack.length > 0) {
+            var last = undoStack[undoStack.length - 1];
+            if (Math.abs(last.x - x) < 0.5 && Math.abs(last.y - y) < 0.5 && Math.abs(last.w - w) < 0.5 && Math.abs(last.h - h) < 0.5 && last.rotation === rotation && last.scaleX === scaleX && last.scaleY === scaleY) return;
+        }
+        undoStack.push({ x: x, y: y, w: w, h: h, rotation: rotation, scaleX: scaleX, scaleY: scaleY });
+        if (undoStack.length > maxUndoSteps) undoStack.shift();
+        redoStack = [];
+    }
+
+    function undo() {
+        if (undoStack.length <= 1) { showToast('没有更多可撤销的操作'); return; }
+        var current = undoStack.pop();
+        redoStack.push(current);
+        var prev = undoStack[undoStack.length - 1];
+        applyUndoRedoState(prev);
+    }
+
+    function redo() {
+        if (redoStack.length === 0) { showToast('没有更多可重做的操作'); return; }
+        var state = redoStack.pop();
+        undoStack.push(state);
+        applyUndoRedoState(state);
+    }
+
+    function applyUndoRedoState(state) {
+        if (!cropper) return;
+        isUndoRedoAction = true;
+
+        if (state.rotation !== undefined) {
+            currentRotation = state.rotation;
+            currentScaleX = state.scaleX !== undefined ? state.scaleX : 1;
+            currentScaleY = state.scaleY !== undefined ? state.scaleY : 1;
+            cropper.rotateTo(state.rotation);
+            cropper.scaleX(currentScaleX);
+            cropper.scaleY(currentScaleY);
+        }
+
+        var px = viewBoxToPixel(state.x, state.y, state.w, state.h);
+        cropper.setData({ x: px.x, y: px.y, width: px.w, height: px.h });
+        cropXInput.value = r(state.x);
+        cropYInput.value = r(state.y);
+        cropWInput.value = r(state.w);
+        cropHInput.value = r(state.h);
+        updateCropInfo();
+        syncActiveSpriteRegion(state.x, state.y, state.w, state.h);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'z' || e.key === 'Z') {
+                e.preventDefault();
+                if (e.shiftKey) { redo(); } else { undo(); }
+            }
+            if (e.key === 'y' || e.key === 'Y') {
+                e.preventDefault();
+                redo();
+            }
+        }
+    });
+
+    function multiFormatExport() {
+        if (!rasterImageEl) { showToast('请先上传图片！'); return; }
+
+        showProgress('正在生成多格式对比...', 5);
+
+        var maxWidth = parseInt(document.getElementById('compMaxWidth').value) || 0;
+        var maxHeight = parseInt(document.getElementById('compMaxHeight').value) || 0;
+        var quality = parseInt(document.getElementById('compQuality').value) / 100;
+
+        var w = rasterImageEl.naturalWidth;
+        var h = rasterImageEl.naturalHeight;
+        if (maxWidth > 0 && w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        if (maxHeight > 0 && h > maxHeight) { w = Math.round(w * maxHeight / h); h = maxHeight; }
+        w = Math.max(1, w); h = Math.max(1, h);
+
+        var formats = [
+            { fmt: 'webp', label: 'WebP', mimeType: 'image/webp' },
+            { fmt: 'jpg', label: 'JPEG', mimeType: 'image/jpeg' },
+            { fmt: 'png', label: 'PNG', mimeType: 'image/png' }
+        ];
+
+        var results = [];
+        var idx = 0;
+
+        (function nextFormat() {
+            if (idx >= formats.length) {
+                hideProgress();
+                var origSize = originalFile ? originalFile.size : 0;
+                var msg = '多格式对比结果:\n';
+                for (var i = 0; i < results.length; i++) {
+                    var r = results[i];
+                    var saved = origSize > 0 ? ((1 - r.size / origSize) * 100).toFixed(1) : '0.0';
+                    msg += r.label + ': ' + formatBytes(r.size) + ' (节省 ' + saved + '%)\n';
+                }
+                showToast('多格式导出完成，请查看下载文件');
+                return;
+            }
+
+            var f = formats[idx];
+            idx++;
+            showProgress('导出 ' + f.label + '...', (idx / formats.length) * 80);
+
+            var canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            if (f.fmt === 'jpg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h); }
+            ctx.drawImage(rasterImageEl, 0, 0, w, h);
+
+            var needsQuality = f.fmt === 'jpg' || f.fmt === 'webp';
+            canvas.toBlob(function(blob) {
+                if (blob) {
+                    results.push({ fmt: f.fmt, label: f.label, size: blob.size });
+                    var url = URL.createObjectURL(blob);
+                    var link = document.createElement('a');
+                    link.href = url;
+                    var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+                    link.download = baseName + '.' + f.fmt;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
+                setTimeout(nextFormat, 200);
+            }, f.mimeType, needsQuality ? quality : undefined);
+        })();
+    }
+
+    function compressRaster() {
+        if (!rasterImageEl) { showToast('请先上传图片！'); return; }
+
+        var compFmt = document.getElementById('compFormat').value;
+        var quality = parseInt(document.getElementById('compQuality').value) / 100;
+        var maxSizeKB = parseFloat(document.getElementById('compMaxSize').value) || 0;
+        var maxWidth = parseInt(document.getElementById('compMaxWidth').value) || 0;
+        var maxHeight = parseInt(document.getElementById('compMaxHeight').value) || 0;
+
+        var targetFmt = compFmt === 'same' ? currentFormat : compFmt;
+        if (targetFmt === 'jpeg') targetFmt = 'jpg';
+        if (!isCanvasSupportedFormat(targetFmt)) targetFmt = 'png';
+
+        var isSameFormat = (compFmt === 'same');
+        var isPngTarget = targetFmt === 'png';
+
+        if (isPngTarget && isSameFormat && !maxWidth && !maxHeight && !maxSizeKB) {
+            showToast('PNG 是无损格式，无法通过质量参数压缩。请缩小尺寸或转为 WebP/JPEG 格式');
+            return;
+        }
+
+        var w = rasterImageEl.naturalWidth;
+        var h = rasterImageEl.naturalHeight;
+        var origW = w, origH = h;
+
+        if (maxWidth > 0 && w > maxWidth) {
+            h = Math.round(h * maxWidth / w);
+            w = maxWidth;
+        }
+        if (maxHeight > 0 && h > maxHeight) {
+            w = Math.round(w * maxHeight / h);
+            h = maxHeight;
+        }
+
+        w = Math.max(1, w);
+        h = Math.max(1, h);
+
+        var sizeReduced = (w < origW || h < origH);
+
+        if (isPngTarget && !sizeReduced && !maxSizeKB) {
+            showToast('PNG 无损格式，未缩小尺寸时无法压缩。请设置尺寸限制或转为 WebP');
+            return;
+        }
+
+        showProgress('正在压缩...', 10);
+
+        var origSize = originalFile ? originalFile.size : 0;
+
+        function doCompress(q) {
+            return new Promise(function(resolve) {
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                var ctx = canvas.getContext('2d');
+                if (targetFmt === 'jpg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                }
+                ctx.drawImage(rasterImageEl, 0, 0, w, h);
+                var mimeType = getMimeType(targetFmt);
+                var needsQuality = targetFmt === 'jpg' || targetFmt === 'webp';
+                canvas.toBlob(function(blob) {
+                    resolve(blob);
+                }, mimeType, needsQuality ? q : undefined);
+            });
+        }
+
+        function finishCompress(blob, origSz, fmt) {
+            hideProgress();
+            if (!blob) { showToast('压缩失败'); return; }
+
+            var compSize = blob.size;
+            var savedPct = origSz > 0 ? ((1 - compSize / origSz) * 100).toFixed(1) : '0.0';
+            var isLarger = compSize > origSz && origSz > 0;
+
+            document.getElementById('rOrigSize').textContent = formatBytes(origSz);
+            document.getElementById('rCompSize').textContent = formatBytes(compSize);
+            document.getElementById('rSavedPct').textContent = (isLarger ? '+' : '') + savedPct + '%';
+            document.getElementById('rSizeBarInner').style.width = origSz > 0 ? Math.min(compSize / origSz * 100, 100) + '%' : '100%';
+            document.getElementById('rSizeBarInner').style.background = isLarger ? '#ef4444' : '#22c55e';
+            document.getElementById('rasterCompressResult').style.display = 'block';
+
+            var previewOrigImg = document.getElementById('previewOrigImg');
+            var previewCompImg = document.getElementById('previewCompImg');
+            previewOrigImg.src = rasterDataUrl;
+            previewCompImg.src = URL.createObjectURL(blob);
+            document.getElementById('compressPreview').style.display = 'block';
+            initCompareSlider();
+
+            if (isLarger && isSameFormat) {
+                showToast('同格式重编码后文件更大（+' + savedPct + '%），建议转为 WebP 格式');
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                link.href = url;
+                var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+                var ext = getExt(fmt);
+                link.download = baseName + '_compressed.' + ext;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                return;
+            }
+
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+            var ext = getExt(fmt);
+            link.download = baseName + '_compressed.' + ext;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('压缩完成！节省 ' + savedPct + '%');
+        }
+
+        if (maxSizeKB > 0 && (targetFmt === 'jpg' || targetFmt === 'webp')) {
+            var maxSizeBytes = maxSizeKB * 1024;
+            var lo = 0.01, hi = 1.0;
+            var bestBlob = null;
+            var iterations = 0;
+            var maxIter = 12;
+
+            (function iterate() {
+                if (lo > hi || iterations >= maxIter) {
+                    finishCompress(bestBlob || null, origSize, targetFmt);
+                    return;
+                }
+                var mid = (lo + hi) / 2;
+                iterations++;
+                showProgress('二分搜索最佳质量... (' + iterations + '/' + maxIter + ')', 10 + (iterations / maxIter) * 70);
+
+                doCompress(mid).then(function(blob) {
+                    if (!blob) { finishCompress(null, origSize, targetFmt); return; }
+                    bestBlob = blob;
+                    if (blob.size <= maxSizeBytes) {
+                        lo = mid + 0.01;
+                    } else {
+                        hi = mid - 0.01;
+                    }
+                    setTimeout(iterate, 10);
+                });
+            })();
+        } else if (isPngTarget && maxSizeKB > 0) {
+            var origW2 = rasterImageEl.naturalWidth;
+            var origH2 = rasterImageEl.naturalHeight;
+            var maxSizeBytes = maxSizeKB * 1024;
+            var bestBlob = null;
+            var bestScale = 1;
+            var scales = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.25, 0.2];
+            var scaleIdx = 0;
+
+            (function tryScale() {
+                if (scaleIdx >= scales.length) {
+                    finishCompress(bestBlob || null, origSize, targetFmt);
+                    return;
+                }
+                var s = scales[scaleIdx];
+                scaleIdx++;
+                w = Math.max(1, Math.round(origW2 * s));
+                h = Math.max(1, Math.round(origH2 * s));
+                showProgress('PNG 尺寸缩放 ' + Math.round(s * 100) + '%...', 10 + scaleIdx * 8);
+
+                doCompress(1).then(function(blob) {
+                    if (blob && blob.size <= maxSizeBytes) {
+                        bestBlob = blob;
+                        bestScale = s;
+                        finishCompress(blob, origSize, targetFmt);
+                        return;
+                    }
+                    if (blob && (!bestBlob || blob.size < bestBlob.size)) {
+                        bestBlob = blob;
+                        bestScale = s;
+                    }
+                    setTimeout(tryScale, 10);
+                });
+            })();
+        } else {
+            doCompress(quality).then(function(blob) {
+                showProgress('完成！', 100);
+                setTimeout(function() { finishCompress(blob, origSize, targetFmt); }, 200);
+            });
+        }
+    }
+
+    function detectByPixelGap() {
+        if (!rasterImageEl) { showToast('请先上传光栅图片！'); return; }
+
+        showProgress('正在扫描像素...', 5);
+
+        var img = rasterImageEl;
+        var w = img.naturalWidth;
+        var h = img.naturalHeight;
+
+        var scanCanvas, scanCtx, imageData;
+
+        if (typeof OffscreenCanvas !== 'undefined') {
+            scanCanvas = new OffscreenCanvas(w, h);
+            scanCtx = scanCanvas.getContext('2d');
+            scanCtx.drawImage(img, 0, 0);
+            imageData = scanCtx.getImageData(0, 0, w, h);
+        } else {
+            scanCanvas = document.createElement('canvas');
+            scanCanvas.width = w;
+            scanCanvas.height = h;
+            scanCtx = scanCanvas.getContext('2d');
+            scanCtx.drawImage(img, 0, 0);
+            imageData = scanCtx.getImageData(0, 0, w, h);
+        }
+
+        var pixels = imageData.data;
+        var alphaThreshold = 30;
+        var maxRegions = parseInt(document.getElementById('spriteCount').value) || 20;
+
+        showProgress('正在扫描透明间隙...', 15);
+
+        var rowTransparent = new Uint8Array(h);
+        var colTransparent = new Uint8Array(w);
+
+        for (var y = 0; y < h; y++) {
+            var allAlpha = true;
+            for (var x = 0; x < w; x++) {
+                if (pixels[(y * w + x) * 4 + 3] >= alphaThreshold) {
+                    allAlpha = false;
+                    break;
+                }
+            }
+            rowTransparent[y] = allAlpha ? 1 : 0;
+        }
+
+        for (var x = 0; x < w; x++) {
+            var allAlpha = true;
+            for (var y = 0; y < h; y++) {
+                if (pixels[(y * w + x) * 4 + 3] >= alphaThreshold) {
+                    allAlpha = false;
+                    break;
+                }
+            }
+            colTransparent[x] = allAlpha ? 1 : 0;
+        }
+
+        var hasTransparentRows = false;
+        var hasTransparentCols = false;
+        for (var y = 0; y < h; y++) { if (rowTransparent[y]) { hasTransparentRows = true; break; } }
+        for (var x = 0; x < w; x++) { if (colTransparent[x]) { hasTransparentCols = true; break; } }
+
+        var regions = [];
+
+        if (hasTransparentRows || hasTransparentCols) {
+            showProgress('透明间隙检测中...', 30);
+            regions = detectByTransparentGaps(w, h, rowTransparent, colTransparent);
+        }
+
+        if (regions.length === 0) {
+            showProgress('尝试颜色聚类检测...', 40);
+            regions = detectByColorClustering(w, h, pixels, maxRegions);
+        }
+
+        if (regions.length === 0) {
+            showProgress('尝试边缘检测...', 50);
+            regions = detectByEdgeScan(w, h, pixels, alphaThreshold, maxRegions);
+        }
+
+        showProgress('正在整理区域...', 80);
+
+        if (regions.length > maxRegions) {
+            regions.sort(function(a, b) { return (b.w * b.h) - (a.w * a.h); });
+            regions = regions.slice(0, maxRegions);
+        }
+
+        regions.sort(function(a, b) {
+            if (a.y < b.y - 5) return -1;
+            if (a.y > b.y + 5) return 1;
+            return a.x - b.x;
+        });
+
+        spriteRegions = [];
+        for (var i = 0; i < regions.length; i++) {
+            regionCounter++;
+            spriteRegions.push({
+                name: 'sprite_' + String(regionCounter).padStart(2, '0'),
+                x: regions[i].x,
+                y: regions[i].y,
+                w: regions[i].w,
+                h: regions[i].h
+            });
+        }
+
+        showProgress('完成！检测到 ' + spriteRegions.length + ' 个区域', 100);
+        setTimeout(function() { hideProgress(); }, 500);
+        renderSpriteList();
+    }
+
+    function detectByTransparentGaps(w, h, rowTransparent, colTransparent) {
+        var rowRanges = [];
+        var inRange = false;
+        var rangeStart = 0;
+        for (var y = 0; y < h; y++) {
+            if (!rowTransparent[y] && !inRange) {
+                inRange = true;
+                rangeStart = y;
+            } else if (rowTransparent[y] && inRange) {
+                inRange = false;
+                rowRanges.push({ start: rangeStart, end: y - 1 });
+            }
+        }
+        if (inRange) rowRanges.push({ start: rangeStart, end: h - 1 });
+
+        var colRanges = [];
+        inRange = false;
+        for (var x = 0; x < w; x++) {
+            if (!colTransparent[x] && !inRange) {
+                inRange = true;
+                rangeStart = x;
+            } else if (colTransparent[x] && inRange) {
+                inRange = false;
+                colRanges.push({ start: rangeStart, end: x - 1 });
+            }
+        }
+        if (inRange) colRanges.push({ start: rangeStart, end: w - 1 });
+
+        var regions = [];
+        for (var ri = 0; ri < rowRanges.length; ri++) {
+            for (var ci = 0; ci < colRanges.length; ci++) {
+                var ry = rowRanges[ri];
+                var cx = colRanges[ci];
+                var rw = cx.end - cx.start + 1;
+                var rh = ry.end - ry.start + 1;
+                if (rw >= 2 && rh >= 2) {
+                    regions.push({ x: cx.start, y: ry.start, w: rw, h: rh });
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    function detectByColorClustering(w, h, pixels, maxRegions) {
+        var step = Math.max(2, Math.floor(Math.sqrt(w * h / 10000)));
+        var bgColor = getMostCommonEdgeColor(w, h, pixels);
+
+        if (!bgColor) return [];
+
+        var threshold = 50;
+        var visited = new Uint8Array(w * h);
+        var regions = [];
+
+        function isBg(px, py) {
+            var idx = (py * w + px) * 4;
+            var dr = Math.abs(pixels[idx] - bgColor.r);
+            var dg = Math.abs(pixels[idx + 1] - bgColor.g);
+            var db = Math.abs(pixels[idx + 2] - bgColor.b);
+            var da = Math.abs(pixels[idx + 3] - bgColor.a);
+            return dr < threshold && dg < threshold && db < threshold && da < threshold;
+        }
+
+        function scanFill(startX, startY) {
+            var minX = startX, maxX = startX, minY = startY, maxY = startY;
+            var stack = [startX, startY];
+            var pixelCount = 0;
+
+            while (stack.length > 0) {
+                var cy = stack.pop();
+                var cx = stack.pop();
+
+                if (cx < 0 || cx >= w || cy < 0 || cy >= h) continue;
+                var pos = cy * w + cx;
+                if (visited[pos]) continue;
+                if (isBg(cx, cy)) continue;
+
+                visited[pos] = 1;
+                pixelCount++;
+
+                if (cx < minX) minX = cx;
+                if (cx > maxX) maxX = cx;
+                if (cy < minY) minY = cy;
+                if (cy > maxY) maxY = cy;
+
+                if (pixelCount < 500000) {
+                    stack.push(cx + 1, cy);
+                    stack.push(cx - 1, cy);
+                    stack.push(cx, cy + 1);
+                    stack.push(cx, cy - 1);
+                }
+            }
+
+            if (pixelCount > 8) {
+                return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+            }
+            return null;
+        }
+
+        for (var y = 0; y < h; y += step) {
+            for (var x = 0; x < w; x += step) {
+                var pos = y * w + x;
+                if (!visited[pos] && !isBg(x, y)) {
+                    var region = scanFill(x, y);
+                    if (region) regions.push(region);
+                }
+            }
+        }
+
+        var merged = true;
+        var mergePasses = 0;
+        while (merged && mergePasses < 5) {
+            merged = false;
+            mergePasses++;
+            for (var i = 0; i < regions.length; i++) {
+                if (!regions[i]) continue;
+                for (var j = i + 1; j < regions.length; j++) {
+                    if (!regions[j]) continue;
+                    var a = regions[i], b = regions[j];
+                    var gap = 3;
+                    var overlapX = a.x - gap < b.x + b.w && a.x + a.w + gap > b.x;
+                    var overlapY = a.y - gap < b.y + b.h && a.y + a.h + gap > b.y;
+                    if (overlapX && overlapY) {
+                        var nx = Math.min(a.x, b.x);
+                        var ny = Math.min(a.y, b.y);
+                        var nw = Math.max(a.x + a.w, b.x + b.w) - nx;
+                        var nh = Math.max(a.y + a.h, b.y + b.h) - ny;
+                        regions[i] = { x: nx, y: ny, w: nw, h: nh };
+                        regions[j] = null;
+                        merged = true;
+                    }
+                }
+            }
+            regions = regions.filter(function(r) { return r !== null; });
+        }
+
+        return regions;
+    }
+
+    function getMostCommonEdgeColor(w, h, pixels) {
+        var colorMap = {};
+        var quantize = 32;
+
+        function addEdgePixel(x, y) {
+            var idx = (y * w + x) * 4;
+            var r = Math.floor(pixels[idx] / quantize) * quantize;
+            var g = Math.floor(pixels[idx + 1] / quantize) * quantize;
+            var b = Math.floor(pixels[idx + 2] / quantize) * quantize;
+            var a = Math.floor(pixels[idx + 3] / quantize) * quantize;
+            var key = r + ',' + g + ',' + b + ',' + a;
+            colorMap[key] = (colorMap[key] || 0) + 1;
+        }
+
+        for (var x = 0; x < w; x++) {
+            addEdgePixel(x, 0);
+            addEdgePixel(x, h - 1);
+        }
+        for (var y = 1; y < h - 1; y++) {
+            addEdgePixel(0, y);
+            addEdgePixel(w - 1, y);
+        }
+
+        var maxCount = 0;
+        var maxKey = null;
+        var totalEdge = 2 * (w + h) - 4;
+        for (var key in colorMap) {
+            if (colorMap[key] > maxCount) {
+                maxCount = colorMap[key];
+                maxKey = key;
+            }
+        }
+
+        if (!maxKey || maxCount < totalEdge * 0.3) return null;
+
+        var parts = maxKey.split(',');
+        return { r: parseInt(parts[0]), g: parseInt(parts[1]), b: parseInt(parts[2]), a: parseInt(parts[3]) };
+    }
+
+    function detectByEdgeScan(w, h, pixels, alphaThreshold, maxRegions) {
+        var cols = Math.ceil(Math.sqrt(maxRegions));
+        var rows = Math.ceil(maxRegions / cols);
+        var cellW = Math.floor(w / cols);
+        var cellH = Math.floor(h / rows);
+        var regions = [];
+
+        for (var row = 0; row < rows; row++) {
+            for (var col = 0; col < cols; col++) {
+                if (regions.length >= maxRegions) break;
+                var sx = col * cellW;
+                var sy = row * cellH;
+                var ex = (col === cols - 1) ? w : (col + 1) * cellW;
+                var ey = (row === rows - 1) ? h : (row + 1) * cellH;
+
+                var minX = ex, minY = ey, maxX = sx, maxY = sy;
+                var hasContent = false;
+
+                for (var y = sy; y < ey; y++) {
+                    for (var x = sx; x < ex; x++) {
+                        if (pixels[(y * w + x) * 4 + 3] >= alphaThreshold) {
+                            hasContent = true;
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                        }
+                    }
+                }
+
+                if (hasContent) {
+                    regions.push({ x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 });
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    function exportSpriteSheet() {
+        if (spriteRegions.length === 0) { showToast('没有精灵区域可导出'); return; }
+        if (!rasterImageEl) { showToast('请先上传光栅图片！'); return; }
+
+        var padding = 2;
+        var totalW = 0, totalH = 0;
+
+        var maxSpriteW = 0, maxSpriteH = 0;
+        for (var i = 0; i < spriteRegions.length; i++) {
+            if (spriteRegions[i].w > maxSpriteW) maxSpriteW = spriteRegions[i].w;
+            if (spriteRegions[i].h > maxSpriteH) maxSpriteH = spriteRegions[i].h;
+        }
+
+        var cols = Math.ceil(Math.sqrt(spriteRegions.length));
+        var rows = Math.ceil(spriteRegions.length / cols);
+
+        totalW = cols * (maxSpriteW + padding) + padding;
+        totalH = rows * (maxSpriteH + padding) + padding;
+
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(totalW));
+        canvas.height = Math.max(1, Math.round(totalH));
+        var ctx = canvas.getContext('2d');
+
+        var cssLines = [];
+        cssLines.push('/* Sprite Sheet: ' + currentFileName + ' */');
+        cssLines.push('/* Source: ' + r(vbW) + ' x ' + r(vbH) + ' → Sheet: ' + totalW + ' x ' + totalH + ' */');
+        cssLines.push('');
+
+        for (var i = 0; i < spriteRegions.length; i++) {
+            var s = spriteRegions[i];
+            var col = i % cols;
+            var row = Math.floor(i / cols);
+            var dx = padding + col * (maxSpriteW + padding);
+            var dy = padding + row * (maxSpriteH + padding);
+
+            ctx.drawImage(rasterImageEl, s.x, s.y, s.w, s.h, dx, dy, s.w, s.h);
+
+            cssLines.push('.' + s.name + ' {');
+            cssLines.push('  width: ' + r(s.w) + 'px;');
+            cssLines.push('  height: ' + r(s.h) + 'px;');
+            cssLines.push('  background: url(\'sprite_sheet.png\') no-repeat;');
+            cssLines.push('  background-position: -' + dx + 'px -' + dy + 'px;');
+            cssLines.push('}');
+            cssLines.push('');
+        }
+
+        var targetFmt = currentFormat;
+        if (targetFmt === 'jpeg') targetFmt = 'jpg';
+        if (!isCanvasSupportedFormat(targetFmt)) targetFmt = 'png';
+
+        var mimeType = getMimeType(targetFmt);
+        var quality = (targetFmt === 'jpg' || targetFmt === 'webp') ? parseInt(outputQuality.value) / 100 : undefined;
+
+        if (targetFmt === 'jpg') {
+            var jpgCanvas = document.createElement('canvas');
+            jpgCanvas.width = canvas.width;
+            jpgCanvas.height = canvas.height;
+            var jpgCtx = jpgCanvas.getContext('2d');
+            jpgCtx.fillStyle = '#ffffff';
+            jpgCtx.fillRect(0, 0, jpgCanvas.width, jpgCanvas.height);
+            jpgCtx.drawImage(canvas, 0, 0);
+            canvas = jpgCanvas;
+        }
+
+        canvas.toBlob(function(blob) {
+            if (!blob) { showToast('导出失败'); return; }
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            var baseName = currentFileName.replace(/\.[^/.]+$/, '');
+            var ext = getExt(targetFmt);
+            link.download = baseName + '_spritesheet.' + ext;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            var cssBlob = new Blob([cssLines.join('\n')], { type: 'text/css' });
+            var cssUrl = URL.createObjectURL(cssBlob);
+            var cssLink = document.createElement('a');
+            cssLink.href = cssUrl;
+            cssLink.download = baseName + '_spritesheet.css';
+            document.body.appendChild(cssLink); cssLink.click(); document.body.removeChild(cssLink);
+            URL.revokeObjectURL(cssUrl);
+
+            showToast('精灵图合图已导出！');
+        }, mimeType, quality);
+    }
+
+    function detectSpriteRegions() {
+        if (!currentFormat) return;
+
+        var count = parseInt(document.getElementById('spriteCount').value) || 5;
+        var layout = document.getElementById('spriteLayout').value;
+
+        spriteRegions = [];
+        regionCounter = 0;
+
+        if (isSvg(currentFormat) && layout === 'dom') {
+            detectByDom();
+        } else if (layout === 'pixel') {
+            if (isRaster(currentFormat)) {
+                detectByPixelGap();
+            } else {
+                showToast('像素检测仅支持光栅图片格式');
+                return;
+            }
+        } else if (layout === 'horizontal') {
+            detectByLayout(count, 1, count);
+        } else if (layout === 'vertical') {
+            detectByLayout(count, count, 1);
+        } else if (layout === 'grid') {
+            var cols = Math.ceil(Math.sqrt(count));
+            var rows = Math.ceil(count / cols);
+            detectByLayout(count, rows, cols);
+        } else {
+            if (isSvg(currentFormat)) {
+                var domRegions = tryDetectByDom();
+                if (domRegions.length > 0 && Math.abs(domRegions.length - count) <= 2) {
+                    spriteRegions = domRegions;
+                    regionCounter = spriteRegions.length;
+                } else {
+                    autoDetectLayout(count);
+                }
+            } else {
+                autoDetectLayout(count);
+            }
+        }
+
+        renderSpriteList();
+    }
+
+    function autoDetectLayout(count) {
+        var aspectRatio = vbW / vbH;
+        if (aspectRatio > count * 0.8) {
+            detectByLayout(count, 1, count);
+        } else if (aspectRatio < 0.8 / count) {
+            detectByLayout(count, count, 1);
+        } else {
+            var cols = Math.ceil(Math.sqrt(count * aspectRatio));
+            var rows = Math.ceil(count / cols);
+            detectByLayout(count, rows, cols);
+        }
+    }
+
+    function tryDetectByDom() {
+        var regions = [];
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(svgText, 'image/svg+xml');
+        var svgEl = doc.querySelector('svg');
+        if (!svgEl) return regions;
+
+        var svgContainer = document.createElement('div');
+        svgContainer.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden;';
+        svgContainer.style.width = vbW + 'px';
+        svgContainer.style.height = vbH + 'px';
+        document.body.appendChild(svgContainer);
+
+        var clone = svgEl.cloneNode(true);
+        clone.setAttribute('width', vbW);
+        clone.setAttribute('height', vbH);
+        svgContainer.appendChild(clone);
+
+        var children = clone.children;
+        var idx = 0;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            if (child.tagName === 'defs' || child.tagName === 'metadata' || child.tagName === 'title' || child.tagName === 'desc' || child.tagName === 'style') continue;
+            try {
+                var bbox = child.getBBox();
+                if (bbox.width > 0 && bbox.height > 0) {
+                    idx++;
+                    regions.push({
+                        name: child.id || ('sprite_' + String(idx).padStart(2, '0')),
+                        x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height
+                    });
+                }
+            } catch (e) {}
+        }
+
+        document.body.removeChild(svgContainer);
+        return regions;
+    }
+
+    function detectByDom() {
+        spriteRegions = tryDetectByDom();
+        regionCounter = spriteRegions.length;
+    }
+
+    function detectByLayout(count, rows, cols) {
+        var cellW = vbW / cols;
+        var cellH = vbH / rows;
+
+        for (var row = 0; row < rows; row++) {
+            for (var col = 0; col < cols; col++) {
+                if (spriteRegions.length >= count) break;
+                regionCounter++;
+                spriteRegions.push({
+                    name: 'sprite_' + String(regionCounter).padStart(2, '0'),
+                    x: vbX + col * cellW,
+                    y: vbY + row * cellH,
+                    w: cellW,
+                    h: cellH
+                });
+            }
+        }
+    }
+
+    function renderSpriteList() {
+        if (spriteRegions.length === 0) {
+            spriteList.innerHTML = '<div class="sprite-empty">未检测到区域，请点击"检测"或"自定义区域"</div>';
+            spriteCssOutput.style.display = 'none';
+            if (isRaster(currentFormat)) exportSheetBtn.style.display = 'none';
+            document.getElementById('batchDownloadBtn').style.display = 'none';
+            return;
+        }
+
+        if (isRaster(currentFormat)) exportSheetBtn.style.display = '';
+        document.getElementById('batchDownloadBtn').style.display = '';
+
+        var html = '<div class="sprite-batch-bar">';
+        html += '<span class="batch-info">共 ' + spriteRegions.length + ' 个区域</span>';
+        html += '<button class="btn-purple btn-sm" id="selectAllBtn">全选</button>';
+        html += '<button class="btn-secondary btn-sm" id="mergeSelectedBtn">合并选中</button>';
+        html += '</div>';
+
+        var cssLines = [];
+        var fmtLabel = currentFormat ? currentFormat.toUpperCase() : 'IMG';
+        cssLines.push('/* Sprite: ' + currentFileName + ' (' + fmtLabel + ') */');
+        cssLines.push('/* Size: ' + r(vbW) + ' x ' + r(vbH) + ' */');
+        cssLines.push('');
+
+        for (var i = 0; i < spriteRegions.length; i++) {
+            var s = spriteRegions[i];
+            var bgPosX = -(s.x - vbX);
+            var bgPosY = -(s.y - vbY);
+
+            html += '<div class="sprite-item" data-idx="' + i + '" draggable="true">';
+            html += '<span class="drag-handle" title="拖拽排序">⠿</span>';
+            html += '<div class="sprite-item-idx">' + (i + 1) + '</div>';
+            html += '<div class="sprite-item-thumb" data-idx="' + i + '"></div>';
+            html += '<div class="sprite-item-info">';
+            html += '<div class="sprite-item-name"><input type="text" value="' + s.name + '" data-idx="' + i + '" class="name-input"></div>';
+            html += '<div class="sprite-item-coords">' + r(s.x) + ', ' + r(s.y) + ' | ' + r(s.w) + ' x ' + r(s.h) + '</div>';
+            html += '</div>';
+            html += '<div class="sprite-item-btns">';
+            html += '<button class="sprite-item-btn crop-btn" data-idx="' + i + '">✂</button>';
+            html += '<button class="sprite-item-btn dl-btn" data-idx="' + i + '">⬇</button>';
+            html += '<button class="sprite-item-btn locate-btn" data-idx="' + i + '">📍</button>';
+            html += '<button class="sprite-item-btn del-btn" data-idx="' + i + '">✕</button>';
+            html += '</div>';
+            html += '</div>';
+
+            cssLines.push('.' + s.name + ' {');
+            cssLines.push('  width: ' + r(s.w) + 'px;');
+            cssLines.push('  height: ' + r(s.h) + 'px;');
+            cssLines.push('  background: url(\'' + currentFileName + '\') no-repeat;');
+            cssLines.push('  background-position: ' + r(bgPosX) + 'px ' + r(bgPosY) + 'px;');
+            cssLines.push('  background-size: ' + r(vbW) + 'px ' + r(vbH) + 'px;');
+            cssLines.push('}');
+            cssLines.push('');
+        }
+
+        spriteList.innerHTML = html;
+        spriteCssOutput.textContent = cssLines.join('\n');
+        spriteCssOutput.style.display = 'block';
+
+        renderSpriteThumbnails();
+
+        var selectAllBtn = document.getElementById('selectAllBtn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                var items = spriteList.querySelectorAll('.sprite-item');
+                var allSelected = true;
+                items.forEach(function(item) { if (!item.classList.contains('selected')) allSelected = false; });
+                items.forEach(function(item) {
+                    if (allSelected) item.classList.remove('selected');
+                    else item.classList.add('selected');
+                });
+            });
+        }
+
+        var mergeSelectedBtn = document.getElementById('mergeSelectedBtn');
+        if (mergeSelectedBtn) {
+            mergeSelectedBtn.addEventListener('click', function() {
+                var selectedItems = spriteList.querySelectorAll('.sprite-item.selected');
+                if (selectedItems.length < 2) { showToast('请先选择至少2个区域（点击区域项选中）'); return; }
+                var indices = [];
+                selectedItems.forEach(function(item) { indices.push(parseInt(item.getAttribute('data-idx'))); });
+                indices.sort(function(a, b) { return a - b; });
+                var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                for (var k = 0; k < indices.length; k++) {
+                    var s = spriteRegions[indices[k]];
+                    if (s.x < minX) minX = s.x;
+                    if (s.y < minY) minY = s.y;
+                    if (s.x + s.w > maxX) maxX = s.x + s.w;
+                    if (s.y + s.h > maxY) maxY = s.y + s.h;
+                }
+                for (var k = indices.length - 1; k >= 0; k--) {
+                    spriteRegions.splice(indices[k], 1);
+                }
+                regionCounter++;
+                spriteRegions.push({ name: 'sprite_merged_' + String(regionCounter).padStart(2, '0'), x: minX, y: minY, w: maxX - minX, h: maxY - minY });
+                renderSpriteList();
+                showToast('已合并 ' + indices.length + ' 个区域');
+            });
+        }
+
+        spriteList.querySelectorAll('.name-input').forEach(function(input) {
+            input.addEventListener('change', function() {
+                var idx = parseInt(input.getAttribute('data-idx'));
+                spriteRegions[idx].name = input.value;
+                updateCssOutput();
+            });
+            input.addEventListener('click', function(e) { e.stopPropagation(); });
+        });
+
+        spriteList.querySelectorAll('.sprite-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.classList.contains('sprite-item-btn')) return;
+                var idx = parseInt(item.getAttribute('data-idx'));
+                locateSpriteRegion(idx);
+            });
+        });
+
+        spriteList.querySelectorAll('.dl-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                downloadSpriteRegion(parseInt(btn.getAttribute('data-idx')));
+            });
+        });
+
+        spriteList.querySelectorAll('.crop-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var idx = parseInt(btn.getAttribute('data-idx'));
+                locateSpriteRegion(idx);
+                downloadCropped();
+            });
+        });
+
+        spriteList.querySelectorAll('.locate-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                locateSpriteRegion(parseInt(btn.getAttribute('data-idx')));
+            });
+        });
+
+        spriteList.querySelectorAll('.del-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var idx = parseInt(btn.getAttribute('data-idx'));
+                spriteRegions.splice(idx, 1);
+                renderSpriteList();
+                showToast('已删除区域');
+            });
+        });
+
+        var dragSrcIdx = null;
+        spriteList.querySelectorAll('.sprite-item').forEach(function(item) {
+            item.addEventListener('dragstart', function(e) {
+                dragSrcIdx = parseInt(item.getAttribute('data-idx'));
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', dragSrcIdx);
+            });
+            item.addEventListener('dragend', function() {
+                item.classList.remove('dragging');
+                spriteList.querySelectorAll('.sprite-item').forEach(function(el) { el.classList.remove('drag-over'); });
+            });
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                spriteList.querySelectorAll('.sprite-item').forEach(function(el) { el.classList.remove('drag-over'); });
+                item.classList.add('drag-over');
+            });
+            item.addEventListener('dragleave', function() {
+                item.classList.remove('drag-over');
+            });
+            item.addEventListener('drop', function(e) {
+                e.preventDefault();
+                item.classList.remove('drag-over');
+                var targetIdx = parseInt(item.getAttribute('data-idx'));
+                if (dragSrcIdx === null || dragSrcIdx === targetIdx) return;
+                var moved = spriteRegions.splice(dragSrcIdx, 1)[0];
+                spriteRegions.splice(targetIdx, 0, moved);
+                renderSpriteList();
+                showToast('已调整顺序');
+            });
+        });
+    }
+
+    function renderSpriteThumbnails() {
+        if (isSvg(currentFormat)) return;
+        if (!rasterImageEl) return;
+
+        for (var i = 0; i < spriteRegions.length; i++) {
+            var s = spriteRegions[i];
+            var thumbEl = spriteList.querySelector('.sprite-item-thumb[data-idx="' + i + '"]');
+            if (!thumbEl) continue;
+
+            var tw = 40, th = 40;
+            var sw = s.w, sh = s.h;
+            if (sw <= 0 || sh <= 0) continue;
+            var scale = Math.min(tw / sw, th / sh);
+            var cw = Math.max(1, Math.round(sw * scale));
+            var ch = Math.max(1, Math.round(sh * scale));
+
+            var canvas = document.createElement('canvas');
+            canvas.width = cw;
+            canvas.height = ch;
+            var ctx = canvas.getContext('2d');
+            if (currentFormat === 'jpeg' || currentFormat === 'jpg') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, cw, ch);
+            }
+            ctx.drawImage(rasterImageEl, s.x, s.y, s.w, s.h, 0, 0, cw, ch);
+            thumbEl.innerHTML = '';
+            thumbEl.appendChild(canvas);
+        }
+    }
+
+    function batchDownloadSprites() {
+        if (spriteRegions.length === 0) { showToast('没有精灵区域可下载'); return; }
+        if (isSvg(currentFormat)) {
+            for (var i = 0; i < spriteRegions.length; i++) {
+                (function(idx) {
+                    setTimeout(function() { downloadSpriteRegion(idx); }, idx * 300);
+                })(i);
+            }
+            showToast('正在逐个下载 ' + spriteRegions.length + ' 个 SVG 区域...');
+        } else if (rasterImageEl) {
+            showProgress('正在批量导出...', 5);
+            var idx = 0;
+            var total = spriteRegions.length;
+
+            (function next() {
+                if (idx >= total) {
+                    showProgress('完成！', 100);
+                    setTimeout(hideProgress, 500);
+                    showToast('已批量下载 ' + total + ' 个区域');
+                    return;
+                }
+                var s = spriteRegions[idx];
+                var canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, Math.round(s.w));
+                canvas.height = Math.max(1, Math.round(s.h));
+                var ctx = canvas.getContext('2d');
+                var outFmt = currentFormat;
+                if (outFmt === 'jpeg') outFmt = 'jpg';
+                if (!isCanvasSupportedFormat(outFmt)) outFmt = 'png';
+                if (outFmt === 'jpg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                ctx.drawImage(rasterImageEl, s.x, s.y, s.w, s.h, 0, 0, canvas.width, canvas.height);
+                var mimeType = getMimeType(outFmt);
+                var quality = (outFmt === 'jpg' || outFmt === 'webp') ? parseInt(outputQuality.value) / 100 : undefined;
+
+                canvas.toBlob(function(blob) {
+                    if (blob) {
+                        var url = URL.createObjectURL(blob);
+                        var link = document.createElement('a');
+                        link.href = url;
+                        var ext = getExt(outFmt);
+                        link.download = s.name + '.' + ext;
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }
+                    idx++;
+                    showProgress('导出中... (' + idx + '/' + total + ')', (idx / total) * 100);
+                    setTimeout(next, 150);
+                }, mimeType, quality);
+            })();
+        }
+    }
+
+    function updateCssOutput() {
+        var cssLines = [];
+        var fmtLabel = currentFormat ? currentFormat.toUpperCase() : 'IMG';
+        cssLines.push('/* Sprite: ' + currentFileName + ' (' + fmtLabel + ') */');
+        cssLines.push('/* Size: ' + r(vbW) + ' x ' + r(vbH) + ' */');
+        cssLines.push('');
+        for (var i = 0; i < spriteRegions.length; i++) {
+            var s = spriteRegions[i];
+            var bgPosX = -(s.x - vbX);
+            var bgPosY = -(s.y - vbY);
+            cssLines.push('.' + s.name + ' {');
+            cssLines.push('  width: ' + r(s.w) + 'px;');
+            cssLines.push('  height: ' + r(s.h) + 'px;');
+            cssLines.push('  background: url(\'' + currentFileName + '\') no-repeat;');
+            cssLines.push('  background-position: ' + r(bgPosX) + 'px ' + r(bgPosY) + 'px;');
+            cssLines.push('  background-size: ' + r(vbW) + 'px ' + r(vbH) + 'px;');
+            cssLines.push('}');
+            cssLines.push('');
+        }
+        spriteCssOutput.textContent = cssLines.join('\n');
+    }
+
+    function downloadSpriteRegion(idx) {
+        if (idx < 0 || idx >= spriteRegions.length) return;
+        activeSpriteIdx = -1;
+        var s = spriteRegions[idx];
+
+        if (isSvg(currentFormat) && svgText) {
+            var newSvg = buildCroppedSvg(svgText, s.x, s.y, s.w, s.h);
+            var blob = new Blob([newSvg], { type: 'image/svg+xml;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = s.name + '.svg';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('已下载: ' + s.name + '.svg');
+        } else if (rasterImageEl) {
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(s.w));
+            canvas.height = Math.max(1, Math.round(s.h));
+            var ctx = canvas.getContext('2d');
+
+            var outFmt = currentFormat;
+            if (outFmt === 'jpeg') outFmt = 'jpg';
+            if (!isCanvasSupportedFormat(outFmt)) outFmt = 'png';
+            if (outFmt === 'jpg') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.drawImage(rasterImageEl, s.x, s.y, s.w, s.h, 0, 0, canvas.width, canvas.height);
+
+            var mimeType = getMimeType(outFmt);
+            var quality = (outFmt === 'jpg' || outFmt === 'webp') ? parseInt(outputQuality.value) / 100 : undefined;
+
+            canvas.toBlob(function(blob) {
+                if (!blob) { showToast('导出失败'); return; }
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                link.href = url;
+                var ext = getExt(outFmt);
+                link.download = s.name + '.' + ext;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('已下载: ' + s.name + '.' + ext);
+            }, mimeType, quality);
+        }
+    }
+
+    function locateSpriteRegion(idx) {
+        if (idx < 0 || idx >= spriteRegions.length) return;
+        activeSpriteIdx = idx;
+        var s = spriteRegions[idx];
+        cropXInput.value = r(s.x); cropYInput.value = r(s.y);
+        cropWInput.value = r(s.w); cropHInput.value = r(s.h);
+        if (cropper) {
+            isUpdatingFromInput = true;
+            var pixel = viewBoxToPixel(s.x, s.y, s.w, s.h);
+            cropper.setData({ x: pixel.x, y: pixel.y, width: pixel.w, height: pixel.h });
+            isUpdatingFromInput = false;
+        }
+        updateCropInfo();
+        var items = spriteList.querySelectorAll('.sprite-item');
+        items.forEach(function(item) { item.classList.remove('selected'); });
+        var target = spriteList.querySelector('.sprite-item[data-idx="' + idx + '"]');
+        if (target) target.classList.add('selected');
+        document.querySelectorAll('.tab-btn')[0].click();
+        showToast('已定位到: ' + s.name);
+    }
+
+    function addCustomRegion() {
+        var name = document.getElementById('addName').value.trim();
+        var x = parseFloat(document.getElementById('addX').value) || 0;
+        var y = parseFloat(document.getElementById('addY').value) || 0;
+        var w = parseFloat(document.getElementById('addW').value) || 1;
+        var h = parseFloat(document.getElementById('addH').value) || 1;
+
+        if (w <= 0 || h <= 0) { showToast('宽高必须大于 0'); return; }
+        if (!name) {
+            regionCounter++;
+            name = 'sprite_' + String(regionCounter).padStart(2, '0');
+        }
+
+        spriteRegions.push({ name: name, x: x, y: y, w: w, h: h });
+        spriteAddForm.style.display = 'none';
+        renderSpriteList();
+        showToast('已添加: ' + name);
+    }
+
+    function copyCssCode() {
+        var text = spriteCssOutput.textContent;
+        if (!text) { showToast('没有可复制的 CSS 代码'); return; }
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('CSS 代码已复制到剪贴板！');
+        }).catch(function() {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea); textarea.select();
+            document.execCommand('copy'); document.body.removeChild(textarea);
+            showToast('CSS 代码已复制到剪贴板！');
+        });
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (btn.classList.contains('disabled')) return;
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.getAttribute('data-tab')).classList.add('active');
+        });
+    });
+
+    fileInput.addEventListener('change', handleFileUpload);
+    document.getElementById('downloadBtn').addEventListener('click', downloadCropped);
+    document.getElementById('resetBtn').addEventListener('click', resetCrop);
+    document.getElementById('compressBtn').addEventListener('click', compressSvg);
+    document.getElementById('rasterCompressBtn').addEventListener('click', compressRaster);
+    document.getElementById('multiFormatBtn').addEventListener('click', multiFormatExport);
+    document.getElementById('detectSpriteBtn').addEventListener('click', detectSpriteRegions);
+    document.getElementById('copyCssBtn').addEventListener('click', copyCssCode);
+    document.getElementById('exportSheetBtn').addEventListener('click', exportSpriteSheet);
+    document.getElementById('batchDownloadBtn').addEventListener('click', batchDownloadSprites);
+
+    document.getElementById('downloadAllFramesBtn').addEventListener('click', function() {
+        if (webpFrames.length === 0) { showToast('没有可下载的帧'); return; }
+        for (var i = 0; i < webpFrames.length; i++) {
+            (function(idx) {
+                setTimeout(function() {
+                    var a = document.createElement('a');
+                    a.href = webpFrames[idx].dataUrl;
+                    a.download = currentFileName.replace(/\.webp$/i, '') + '_frame_' + (idx + 1) + '.png';
+                    a.click();
+                }, idx * 200);
+            })(i);
+        }
+        showToast('正在下载 ' + webpFrames.length + ' 帧...');
+    });
+
+    document.getElementById('addRegionBtn').addEventListener('click', function() {
+        spriteAddForm.style.display = spriteAddForm.style.display === 'block' ? 'none' : 'block';
+        if (spriteAddForm.style.display === 'block') {
+            regionCounter++;
+            document.getElementById('addName').value = 'sprite_' + String(regionCounter).padStart(2, '0');
+            document.getElementById('addX').value = r(vbX);
+            document.getElementById('addY').value = r(vbY);
+            document.getElementById('addW').value = r(vbW);
+            document.getElementById('addH').value = r(vbH);
+        }
+    });
+
+    document.getElementById('addConfirmBtn').addEventListener('click', addCustomRegion);
+    document.getElementById('addCancelBtn').addEventListener('click', function() { spriteAddForm.style.display = 'none'; });
+
+    document.getElementById('clearAllBtn').addEventListener('click', function() {
+        if (spriteRegions.length === 0) return;
+        spriteRegions = [];
+        regionCounter = 0;
+        renderSpriteList();
+        showToast('已清空所有区域');
+    });
+})();
+</script>
+</body>
+</html>

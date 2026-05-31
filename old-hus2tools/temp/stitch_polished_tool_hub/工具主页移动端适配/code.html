@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClayTools Workspace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .shadow-clay {
+            box-shadow: 
+                -4px -4px 10px rgba(255, 255, 255, 0.8),
+                4px 4px 12px rgba(14, 108, 74, 0.15),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .shadow-clay-hover {
+            box-shadow: 
+                -6px -6px 14px rgba(255, 255, 255, 0.9),
+                8px 8px 18px rgba(14, 108, 74, 0.2),
+                inset 1px 1px 2px rgba(255, 255, 255, 1),
+                inset -1px -1px 2px rgba(0, 0, 0, 0.02);
+        }
+        .shadow-clay-inset {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+        }
+        .spring-transition {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .pop-in {
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+        }
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "dark-jewel-purple": "#5b21b6",
+                      "clay-yellow-main": "#ffe6a7",
+                      "on-surface-variant": "#3f4943",
+                      "error": "#ba1a1a",
+                      "dark-jewel-green": "#065f46",
+                      "surface-tint": "#0e6c4a",
+                      "tertiary-fixed": "#ffd9dd",
+                      "on-secondary-fixed-variant": "#104a70",
+                      "clay-pink-deep": "#ff6a88",
+                      "on-surface": "#151c22",
+                      "clay-blue-light": "#cae9ff",
+                      "on-secondary-container": "#265a81",
+                      "surface-bright": "#f6f9ff",
+                      "surface-container-high": "#e2e9f1",
+                      "clay-yellow-light": "#fff4bd",
+                      "on-primary": "#ffffff",
+                      "clay-purple-dark": "#b377dc",
+                      "primary-fixed-dim": "#85d7ad",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "clay-yellow-dark": "#ffcc77",
+                      "on-primary-fixed": "#002113",
+                      "surface-container-low": "#eef4fd",
+                      "surface-variant": "#dce3ec",
+                      "surface": "#f6f9ff",
+                      "on-background": "#151c22",
+                      "clay-blue-dark": "#5a9fd4",
+                      "dark-jewel-yellow": "#92400e",
+                      "surface-dim": "#d4dbe3",
+                      "clay-yellow-deep": "#d4a373",
+                      "clay-green-light": "#d8f3dc",
+                      "clay-green-deep": "#2d6a4f",
+                      "outline-variant": "#bec9c0",
+                      "clay-green-main": "#b7e4c7",
+                      "secondary": "#30628a",
+                      "dark-jewel-pink": "#9d2d6d",
+                      "clay-pink-main": "#ffb3d9",
+                      "clay-pink-dark": "#ff8fb3",
+                      "on-primary-fixed-variant": "#005236",
+                      "secondary-fixed": "#cde5ff",
+                      "inverse-on-surface": "#ebf1fa",
+                      "primary-fixed": "#a0f4c8",
+                      "surface-container-highest": "#dce3ec",
+                      "clay-purple-deep": "#7e5ca0",
+                      "tertiary-container": "#ff98a8",
+                      "tertiary-fixed-dim": "#ffb2bc",
+                      "secondary-fixed-dim": "#9bcbf8",
+                      "clay-purple-light": "#e4c1f9",
+                      "on-primary-container": "#005236",
+                      "clay-purple-main": "#d4a5f3",
+                      "clay-pink-light": "#ffc8dd",
+                      "surface-container": "#e8eef7",
+                      "on-tertiary-container": "#8d0f37",
+                      "dark-jewel-blue": "#1e40af",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#8d0f36",
+                      "primary": "#0e6c4a",
+                      "inverse-primary": "#85d7ad",
+                      "clay-green-dark": "#74c69d",
+                      "secondary-container": "#a1d1fe",
+                      "on-tertiary-fixed": "#400013",
+                      "surface-container-lowest": "#ffffff",
+                      "clay-blue-main": "#a2d2ff",
+                      "tertiary": "#ad2c4d",
+                      "inverse-surface": "#2a3138",
+                      "outline": "#6f7a72",
+                      "clay-blue-deep": "#356590",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#74c69d",
+                      "on-secondary-fixed": "#001d32",
+                      "background": "#f6f9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "gutter": "16px",
+                      "container-padding": "24px",
+                      "clay-padding-sm": "12px 16px",
+                      "stack-gap": "12px",
+                      "clay-padding-md": "20px 24px"
+              },
+              "fontFamily": {
+                      "tool-title": ["Inter"],
+                      "headline-md": ["Quicksand"],
+                      "body-lg": ["Inter"],
+                      "micro": ["Inter"],
+                      "display-hero": ["Quicksand"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Quicksand"],
+                      "display-hero-mobile": ["Quicksand"],
+                      "body-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "tool-title": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "micro": ["10px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "display-hero": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "display-hero-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-lg text-on-background min-h-screen overflow-x-hidden pb-28">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full sticky top-0 z-50 bg-surface dark:bg-surface-dim shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.05)] w-full px-container-padding py-stack-gap">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-clay-green-main flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-primary" data-icon="handyman">handyman</span>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-clay-green-dark">ClayTools</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center shadow-clay active:shadow-clay-inset spring-transition">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="palette">palette</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-clay active:shadow-clay-inset spring-transition">
+<span class="material-symbols-outlined text-on-primary" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<main class="px-container-padding pt-6 space-y-8">
+<!-- Hero Section -->
+<section class="pop-in" style="animation-delay: 0.1s;">
+<div class="relative overflow-hidden rounded-[2rem] bg-clay-blue-light p-6 shadow-clay">
+<div class="relative z-10 space-y-2">
+<h2 class="font-display-hero-mobile text-display-hero-mobile text-clay-blue-deep">Welcome Back!</h2>
+<p class="font-body-sm text-body-sm text-secondary max-w-[200px]">What magic would you like to create today?</p>
+<button class="mt-4 px-6 py-2 bg-clay-blue-main text-white rounded-full font-label-md text-label-md shadow-clay-hover hover:scale-105 active:scale-95 spring-transition">
+                        View Tutorial
+                    </button>
+</div>
+<!-- 3D Clay Decorative Image -->
+<div class="absolute -right-4 -bottom-6 w-40 h-40 transform rotate-12">
+<img alt="3D Clay Shapes" class="w-full h-full object-contain" data-alt="A collection of soft, rounded 3D clay shapes in pastel blue and mint green, floating in a bright minimalist environment. The lighting is high-key with soft multi-directional shadows, creating a tactile and squishy appearance. The overall aesthetic is playful and modern, perfectly matching a soft light-mode UI design with gentle gradients and organic forms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATcKIQ8LsDuAiLikcb2b8Jx96tmQZk5cnT75XhrQftlSBtpaYn7XSrbuZu1ctRpMsZfBX0SQ7mf8Itv2PzsUEdZjVe0LiYDNe7tTJQ9EMxklMJzjs9M6QMobSQA2lUoiXzNuHQlYEAS_IQJbryXDLQcAAz8CnItJIXH4Vs4jvOQdGtJl43Udw9Nm30sBq6dUHxaaXJ87HAc7Jm1EozxAtZ9QFgQJxqDXqA4NX4i1YXBV6ZqG7K-A-0b1X987OTSNg-Hm6Q_cdr3zSY"/>
+</div>
+</div>
+</section>
+<!-- Categories / Chips -->
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar pop-in" style="animation-delay: 0.2s;">
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-primary text-on-primary shadow-clay spring-transition">All Tools</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-white text-secondary shadow-clay spring-transition">Images</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-white text-secondary shadow-clay spring-transition">Documents</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-white text-secondary shadow-clay spring-transition">Dev</button>
+</div>
+<!-- Tool Grid (Asymmetric/Bento-ish Mobile Grid) -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Tool Card 1: Large Feature -->
+<div class="col-span-2 pop-in" style="animation-delay: 0.3s;">
+<div class="bg-clay-green-light p-5 rounded-[1.5rem] shadow-clay flex items-center gap-4 hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-green-deep text-4xl" data-icon="image">image</span>
+</div>
+<div class="flex-1">
+<h3 class="font-tool-title text-tool-title text-clay-green-deep">Image Optimizer</h3>
+<p class="font-micro text-micro text-outline uppercase tracking-wider">Compression &amp; Resize</p>
+</div>
+<span class="material-symbols-outlined text-clay-green-deep" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tool Card 2 -->
+<div class="pop-in" style="animation-delay: 0.4s;">
+<div class="bg-clay-pink-light p-4 rounded-[1.5rem] shadow-clay aspect-square flex flex-col justify-between hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-pink-deep" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<h3 class="font-tool-title text-tool-title text-clay-pink-deep">PDF Magic</h3>
+<p class="font-micro text-micro text-outline">Merge &amp; Split</p>
+</div>
+</div>
+</div>
+<!-- Tool Card 3 -->
+<div class="pop-in" style="animation-delay: 0.5s;">
+<div class="bg-clay-purple-light p-4 rounded-[1.5rem] shadow-clay aspect-square flex flex-col justify-between hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-purple-deep" data-icon="code">code</span>
+</div>
+<div>
+<h3 class="font-tool-title text-tool-title text-clay-purple-deep">Prettifier</h3>
+<p class="font-micro text-micro text-outline">Code Formatting</p>
+</div>
+</div>
+</div>
+<!-- Tool Card 4 -->
+<div class="col-span-2 pop-in" style="animation-delay: 0.6s;">
+<div class="bg-clay-yellow-light p-5 rounded-[1.5rem] shadow-clay flex items-center gap-4 hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-yellow-deep text-4xl" data-icon="currency_exchange">currency_exchange</span>
+</div>
+<div class="flex-1">
+<h3 class="font-tool-title text-tool-title text-clay-yellow-deep">Converter</h3>
+<p class="font-micro text-micro text-outline uppercase tracking-wider">Unit &amp; Currency</p>
+</div>
+<span class="material-symbols-outlined text-clay-yellow-deep" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tool Card 5: Grid item -->
+<div class="pop-in" style="animation-delay: 0.7s;">
+<div class="bg-surface-container p-4 rounded-[1.5rem] shadow-clay aspect-square flex flex-col justify-between hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-secondary" data-icon="qr_code_2">qr_code_2</span>
+</div>
+<div>
+<h3 class="font-tool-title text-tool-title text-secondary">QR Maker</h3>
+<p class="font-micro text-micro text-outline">Dynamic Links</p>
+</div>
+</div>
+</div>
+<!-- Tool Card 6 -->
+<div class="pop-in" style="animation-delay: 0.8s;">
+<div class="bg-clay-blue-light p-4 rounded-[1.5rem] shadow-clay aspect-square flex flex-col justify-between hover:translate-y-[-4px] spring-transition cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-blue-deep" data-icon="draw">draw</span>
+</div>
+<div>
+<h3 class="font-tool-title text-tool-title text-clay-blue-deep">Sketchpad</h3>
+<p class="font-micro text-micro text-outline">Quick Mockups</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section (Low Key) -->
+<section class="pop-in" style="animation-delay: 0.9s;">
+<div class="p-6 rounded-[2rem] bg-white border border-surface-container-high shadow-clay flex justify-between items-center">
+<div class="text-center flex-1">
+<p class="font-label-md text-label-md text-outline">USED TODAY</p>
+<p class="font-headline-md text-headline-md text-primary">12</p>
+</div>
+<div class="w-px h-10 bg-surface-container-highest"></div>
+<div class="text-center flex-1">
+<p class="font-label-md text-label-md text-outline">SAVED TIME</p>
+<p class="font-headline-md text-headline-md text-primary">45m</p>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 w-16 h-16 rounded-full bg-primary text-white shadow-clay-hover hover:translate-y-[-4px] active:scale-90 spring-transition z-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 flex justify-around items-center px-4 rounded-full h-20 bg-clay-blue-light dark:bg-clay-blue-deep shadow-[0_8px_16px_rgba(162,210,255,0.4),inset_2px_2px_4px_rgba(255,255,255,0.9),inset_-2px_-2px_4px_rgba(53,101,144,0.2)]">
+<!-- Tools (Active) -->
+<div class="flex flex-col items-center justify-center bg-primary dark:bg-primary-fixed text-on-primary dark:text-on-primary-fixed rounded-full w-14 h-14 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-clay cursor-pointer">
+<span class="material-symbols-outlined" data-icon="construction" data-weight="fill" style="font-variation-settings: 'FILL' 1;">construction</span>
+<span class="font-label-md text-[10px] mt-0.5">Tools</span>
+</div>
+<!-- History -->
+<div class="flex flex-col items-center justify-center text-secondary dark:text-clay-blue-light w-14 h-14 hover:translate-y-[-4px] transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-[10px] mt-0.5">History</span>
+</div>
+<!-- Saved -->
+<div class="flex flex-col items-center justify-center text-secondary dark:text-clay-blue-light w-14 h-14 hover:translate-y-[-4px] transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-label-md text-[10px] mt-0.5">Saved</span>
+</div>
+<!-- Settings -->
+<div class="flex flex-col items-center justify-center text-secondary dark:text-clay-blue-light w-14 h-14 hover:translate-y-[-4px] transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-[10px] mt-0.5">Settings</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction: Scale effect on active press for all interactive elements
+        document.querySelectorAll('.active\\:shadow-clay-inset').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.style.transform = 'scale(0.95)';
+            });
+            el.addEventListener('mouseup', () => {
+                el.style.transform = 'scale(1)';
+            });
+        });
+
+        // Theme Switcher Micro-interaction
+        const themeBtn = document.querySelector('[data-icon="palette"]').parentElement;
+        themeBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            // Animation feedback
+            themeBtn.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                themeBtn.style.transform = 'rotate(0deg)';
+            }, 400);
+        });
+
+        // Add staggered pop-in delay logic if not hardcoded
+        const cards = document.querySelectorAll('.pop-in');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.05}s`;
+        });
+    </script>
+</body></html>

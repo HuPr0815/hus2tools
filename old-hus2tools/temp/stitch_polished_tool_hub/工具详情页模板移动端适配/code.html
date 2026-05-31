@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<title>ClayTools - Tool Detail</title>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        
+        .shadow-clay {
+            box-shadow: 
+                -4px -4px 8px rgba(255, 255, 255, 0.9),
+                4px 4px 12px rgba(14, 108, 74, 0.15),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .shadow-clay-inset {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.08),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+        }
+
+        .shadow-clay-hover {
+            box-shadow: 
+                -6px -6px 12px rgba(255, 255, 255, 1),
+                8px 8px 20px rgba(14, 108, 74, 0.2),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+                inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .clay-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #0e6c4a;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 
+                -2px -2px 4px rgba(255, 255, 255, 0.8),
+                2px 2px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid #ffffff;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .clay-slider::-webkit-slider-thumb:active {
+            transform: scale(0.9);
+        }
+
+        .clay-slider {
+            -webkit-appearance: none;
+            height: 12px;
+            border-radius: 9999px;
+            background: #dce3ec;
+            outline: none;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .spring-transition {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "dark-jewel-purple": "#5b21b6",
+                    "clay-yellow-main": "#ffe6a7",
+                    "on-surface-variant": "#3f4943",
+                    "error": "#ba1a1a",
+                    "dark-jewel-green": "#065f46",
+                    "surface-tint": "#0e6c4a",
+                    "tertiary-fixed": "#ffd9dd",
+                    "on-secondary-fixed-variant": "#104a70",
+                    "clay-pink-deep": "#ff6a88",
+                    "on-surface": "#151c22",
+                    "clay-blue-light": "#cae9ff",
+                    "on-secondary-container": "#265a81",
+                    "surface-bright": "#f6f9ff",
+                    "surface-container-high": "#e2e9f1",
+                    "clay-yellow-light": "#fff4bd",
+                    "on-primary": "#ffffff",
+                    "clay-purple-dark": "#b377dc",
+                    "primary-fixed-dim": "#85d7ad",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "clay-yellow-dark": "#ffcc77",
+                    "on-primary-fixed": "#002113",
+                    "surface-container-low": "#eef4fd",
+                    "surface-variant": "#dce3ec",
+                    "surface": "#f6f9ff",
+                    "on-background": "#151c22",
+                    "clay-blue-dark": "#5a9fd4",
+                    "dark-jewel-yellow": "#92400e",
+                    "surface-dim": "#d4dbe3",
+                    "clay-yellow-deep": "#d4a373",
+                    "clay-green-light": "#d8f3dc",
+                    "clay-green-deep": "#2d6a4f",
+                    "outline-variant": "#bec9c0",
+                    "clay-green-main": "#b7e4c7",
+                    "secondary": "#30628a",
+                    "dark-jewel-pink": "#9d2d6d",
+                    "clay-pink-main": "#ffb3d9",
+                    "clay-pink-dark": "#ff8fb3",
+                    "on-primary-fixed-variant": "#005236",
+                    "secondary-fixed": "#cde5ff",
+                    "inverse-on-surface": "#ebf1fa",
+                    "primary-fixed": "#a0f4c8",
+                    "surface-container-highest": "#dce3ec",
+                    "clay-purple-deep": "#7e5ca0",
+                    "tertiary-container": "#ff98a8",
+                    "tertiary-fixed-dim": "#ffb2bc",
+                    "secondary-fixed-dim": "#9bcbf8",
+                    "clay-purple-light": "#e4c1f9",
+                    "on-primary-container": "#005236",
+                    "clay-purple-main": "#d4a5f3",
+                    "clay-pink-light": "#ffc8dd",
+                    "surface-container": "#e8eef7",
+                    "on-tertiary-container": "#8d0f37",
+                    "dark-jewel-blue": "#1e40af",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#8d0f36",
+                    "primary": "#0e6c4a",
+                    "inverse-primary": "#85d7ad",
+                    "clay-green-dark": "#74c69d",
+                    "secondary-container": "#a1d1fe",
+                    "on-tertiary-fixed": "#400013",
+                    "surface-container-lowest": "#ffffff",
+                    "clay-blue-main": "#a2d2ff",
+                    "tertiary": "#ad2c4d",
+                    "inverse-surface": "#2a3138",
+                    "outline": "#6f7a72",
+                    "clay-blue-deep": "#356590",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#74c69d",
+                    "on-secondary-fixed": "#001d32",
+                    "background": "#f6f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "container-padding": "24px",
+                    "clay-padding-sm": "12px 16px",
+                    "stack-gap": "12px",
+                    "clay-padding-md": "20px 24px"
+            },
+            "fontFamily": {
+                    "tool-title": ["Inter"],
+                    "headline-md": ["Quicksand"],
+                    "body-lg": ["Inter"],
+                    "micro": ["Inter"],
+                    "display-hero": ["Quicksand"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Quicksand"],
+                    "display-hero-mobile": ["Quicksand"],
+                    "body-sm": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen pb-32">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full sticky top-0 z-50 bg-surface shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.05)] px-container-padding py-stack-gap">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant spring-transition active:scale-90 bg-surface-container shadow-clay">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ClayTools</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="handyman">handyman</span>
+</div>
+</header>
+<main class="px-gutter pt-8 space-y-8">
+<!-- Tool Intro -->
+<div class="space-y-2">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Image Optimizer</h2>
+<p class="font-body-sm text-on-surface-variant">Compress and refine your images with zero quality loss.</p>
+</div>
+<!-- Upload Area (Interactive) -->
+<section class="relative">
+<div class="w-full aspect-square rounded-[2rem] flex flex-col items-center justify-center p-8 bg-surface-container-low shadow-clay-inset border-2 border-dashed border-outline-variant spring-transition group" id="uploadZone">
+<div class="w-20 h-20 rounded-full bg-primary-container flex items-center justify-center shadow-clay mb-6 group-active:scale-95 spring-transition">
+<span class="material-symbols-outlined text-4xl text-on-primary-container" data-icon="upload_file">upload_file</span>
+</div>
+<p class="font-tool-title text-tool-title text-on-surface-variant text-center">Tap to upload or drop image</p>
+<p class="font-label-md text-label-md text-outline mt-2">JPG, PNG up to 10MB</p>
+</div>
+</section>
+<!-- Preview Area (Conditional State) -->
+<section class="space-y-4">
+<div class="flex justify-between items-center px-2">
+<h3 class="font-tool-title text-tool-title text-on-surface">Preview</h3>
+<span class="font-label-md text-label-md px-3 py-1 bg-clay-green-light text-primary rounded-full shadow-clay">720 KB → 145 KB</span>
+</div>
+<div class="w-full rounded-[2rem] overflow-hidden bg-surface-container shadow-clay aspect-video relative group">
+<img class="w-full h-full object-cover" data-alt="A high-quality close-up photograph of a professional designer's workspace featuring a sleek laptop, tablet, and a cup of coffee on a warm wooden desk. The scene is bathed in natural morning sunlight coming through a nearby window, creating a serene and productive atmosphere. The color palette is warm and inviting, with soft greens and earthy browns dominating the frame, reflecting a clean and modern light-mode design aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM4DcdfGDFslKQLAdlb6UqdHnr6awWHrO2scZPp5bfVyVFV3KHZFalqSIqeCF0y6OQahHdsyxyeeaElIVGTyTCFzg5nE11ppp2XDFXWJ07aMGBDOKhBJgXRL83Z16vhWtPsXx8hGEP03MotYse21c0xpRDVV8mnavOuxhZ9K9jAfY6lcJqgLi7dNwNQTWVuOR2pz02xdux-r9AaqhM-mRnkSS2zoLPWzvMsNajH8OK88JyeIKbc6-gOGwnCkui3pmi0NnkTrZ0Rz5U"/>
+<div class="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-primary">zoom_in</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Settings Stack -->
+<section class="space-y-6">
+<h3 class="font-tool-title text-tool-title text-on-surface px-2">Refinement Settings</h3>
+<!-- Slider Group 1 -->
+<div class="p-clay-padding-md bg-surface-container-lowest rounded-[1.5rem] shadow-clay space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">high_quality</span>
+                        QUALITY
+                    </label>
+<span class="font-tool-title text-tool-title text-primary">85%</span>
+</div>
+<input class="w-full clay-slider" max="100" min="0" type="range" value="85"/>
+</div>
+<!-- Slider Group 2 -->
+<div class="p-clay-padding-md bg-surface-container-lowest rounded-[1.5rem] shadow-clay space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">photo_size_select_large</span>
+                        SMOOTHING
+                    </label>
+<span class="font-tool-title text-tool-title text-primary">40%</span>
+</div>
+<input class="w-full clay-slider" max="100" min="0" type="range" value="40"/>
+</div>
+<!-- Toggle List -->
+<div class="space-y-4">
+<div class="flex items-center justify-between p-clay-padding-md bg-surface-container-lowest rounded-[1.5rem] shadow-clay">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-clay-purple-light flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-purple-deep">auto_fix_high</span>
+</div>
+<span class="font-tool-title text-tool-title text-on-surface">Auto-enhance</span>
+</div>
+<button class="w-14 h-8 rounded-full bg-primary relative spring-transition" onclick="toggleSwitch(this)">
+<div class="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow-md spring-transition"></div>
+</button>
+</div>
+<div class="flex items-center justify-between p-clay-padding-md bg-surface-container-lowest rounded-[1.5rem] shadow-clay">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-clay-blue-light flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-clay-blue-deep">data_object</span>
+</div>
+<span class="font-tool-title text-tool-title text-on-surface">Strip Metadata</span>
+</div>
+<button class="w-14 h-8 rounded-full bg-surface-variant relative spring-transition" onclick="toggleSwitch(this)">
+<div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow-md spring-transition"></div>
+</button>
+</div>
+</div>
+</section>
+<!-- Process Action -->
+<section class="pt-4">
+<button class="w-full h-16 bg-primary text-on-primary font-tool-title text-tool-title rounded-full shadow-clay-hover spring-transition active:scale-95 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-weight="fill">download</span>
+                OPTIMIZE &amp; DOWNLOAD
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 flex justify-around items-center px-4 h-20 rounded-full bg-clay-blue-light shadow-[0_8px_16px_rgba(162,210,255,0.4),inset_2px_2px_4px_rgba(255,255,255,0.9),inset_-2px_-2px_4px_rgba(53,101,144,0.2)]">
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full w-14 h-14 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-clay">
+<span class="material-symbols-outlined" data-icon="construction">construction</span>
+<span class="font-micro text-micro mt-1">Tools</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary w-14 h-14 hover:translate-y-[-4px] transition-transform">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-micro text-micro mt-1">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary w-14 h-14 hover:translate-y-[-4px] transition-transform">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-micro text-micro mt-1">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary w-14 h-14 hover:translate-y-[-4px] transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-micro text-micro mt-1">Settings</span>
+</div>
+</nav>
+<script>
+        function toggleSwitch(btn) {
+            const circle = btn.querySelector('div');
+            const isActive = btn.classList.contains('bg-primary');
+            
+            if (isActive) {
+                btn.classList.remove('bg-primary');
+                btn.classList.add('bg-surface-variant');
+                circle.style.left = '4px';
+                circle.style.right = 'auto';
+            } else {
+                btn.classList.add('bg-primary');
+                btn.classList.remove('bg-surface-variant');
+                circle.style.left = 'auto';
+                circle.style.right = '4px';
+            }
+        }
+
+        // Add touch feedback to zones
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('touchstart', () => {
+            uploadZone.style.transform = 'scale(0.98)';
+        });
+        uploadZone.addEventListener('touchend', () => {
+            uploadZone.style.transform = 'scale(1)';
+        });
+    </script>
+</body></html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TestKit - Simple Tool Template</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Quicksand & Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "clay-yellow-deep": "#d4a373",
+                        "tertiary-container": "#ff98a8",
+                        "error": "#ba1a1a",
+                        "clay-pink-main": "#ffb3d9",
+                        "outline": "#6f7a72",
+                        "clay-blue-light": "#cae9ff",
+                        "on-surface": "#151c22",
+                        "dark-jewel-blue": "#1e40af",
+                        "clay-yellow-light": "#fff4bd",
+                        "surface-container-lowest": "#ffffff",
+                        "clay-purple-deep": "#7e5ca0",
+                        "clay-purple-light": "#e4c1f9",
+                        "clay-blue-dark": "#5a9fd4",
+                        "secondary": "#30628a",
+                        "inverse-surface": "#2a3138",
+                        "surface-bright": "#f6f9ff",
+                        "secondary-fixed-dim": "#9bcbf8",
+                        "surface-container-low": "#eef4fd",
+                        "clay-green-light": "#d8f3dc",
+                        "on-primary": "#ffffff",
+                        "primary": "#0e6c4a",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffd9dd",
+                        "clay-yellow-dark": "#ffcc77",
+                        "clay-green-dark": "#74c69d",
+                        "clay-pink-dark": "#ff8fb3",
+                        "clay-purple-main": "#d4a5f3",
+                        "clay-green-deep": "#2d6a4f",
+                        "dark-jewel-green": "#065f46",
+                        "surface": "#f6f9ff",
+                        "on-secondary-fixed-variant": "#104a70",
+                        "on-background": "#151c22",
+                        "primary-fixed-dim": "#85d7ad",
+                        "clay-blue-deep": "#356590",
+                        "primary-container": "#74c69d",
+                        "on-surface-variant": "#3f4943",
+                        "on-error-container": "#93000a",
+                        "clay-blue-main": "#a2d2ff",
+                        "surface-container-high": "#e2e9f1",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#001d32",
+                        "outline-variant": "#bec9c0",
+                        "on-primary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#002113",
+                        "clay-green-main": "#b7e4c7",
+                        "primary-fixed": "#a0f4c8",
+                        "surface-variant": "#dce3ec",
+                        "clay-pink-light": "#ffc8dd",
+                        "surface-dim": "#d4dbe3",
+                        "inverse-on-surface": "#ebf1fa",
+                        "surface-container-highest": "#dce3ec",
+                        "on-tertiary-container": "#8d0f37",
+                        "background": "#f6f9ff",
+                        "dark-jewel-purple": "#5b21b6",
+                        "tertiary": "#ad2c4d",
+                        "clay-yellow-main": "#ffe6a7",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#8d0f36",
+                        "surface-tint": "#0e6c4a",
+                        "clay-purple-dark": "#b377dc",
+                        "on-secondary-container": "#265a81",
+                        "clay-pink-deep": "#ff6a88",
+                        "on-primary-container": "#005236",
+                        "dark-jewel-yellow": "#92400e",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#a1d1fe",
+                        "surface-container": "#e8eef7",
+                        "dark-jewel-pink": "#9d2d6d",
+                        "secondary-fixed": "#cde5ff",
+                        "inverse-primary": "#85d7ad",
+                        "tertiary-fixed-dim": "#ffb2bc",
+                        "on-tertiary-fixed": "#400013"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "container-padding": "24px",
+                        "clay-padding-sm": "12px 16px",
+                        "stack-gap": "12px",
+                        "clay-padding-md": "20px 24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Quicksand"],
+                        "display-hero-mobile": ["Quicksand"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "micro": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-hero": ["Quicksand"],
+                        "tool-title": ["Inter"],
+                        "headline-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "display-hero-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "micro": ["10px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-hero": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "tool-title": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .shadow-clay {
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.08),
+                -8px -8px 16px rgba(255, 255, 255, 0.8),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.5),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .shadow-clay-hover {
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.1),
+                -12px -12px 24px rgba(255, 255, 255, 0.9),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.6),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .shadow-clay-inset {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.05),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .clay-button {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .clay-button:active {
+            transform: scale(0.95);
+        }
+
+        .floating-blob {
+            position: fixed;
+            z-index: -1;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 50px) scale(1.2); }
+        }
+
+        .spring-transition {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="floating-blob w-96 h-96 bg-clay-purple-light top-[-10%] left-[-5%]"></div>
+<div class="floating-blob w-80 h-80 bg-clay-green-light bottom-[10%] right-[-5%] animation-delay-2000"></div>
+<div class="floating-blob w-64 h-64 bg-clay-blue-light top-[40%] right-[10%] animation-delay-4000"></div>
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 rounded-r-xl shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] bg-surface dark:bg-surface-container flex flex-col p-container-padding gap-stack-gap z-50">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-clay-green-deep flex items-center justify-center shadow-clay">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-clay-green-deep dark:text-clay-green-main">TestKit</h1>
+<p class="font-label-md text-label-md opacity-70">Pro Utility Suite</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<!-- Dashboard -->
+<a class="flex items-center gap-stack-gap text-on-surface-variant dark:text-surface-variant px-clay-padding-sm py-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:translate-x-1 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Converters (Active for this tool template) -->
+<a class="flex items-center gap-stack-gap bg-clay-green-light dark:bg-clay-green-deep text-clay-green-deep dark:text-clay-green-light rounded-xl px-clay-padding-sm shadow-inner scale-[1.02] font-bold spring-transition" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">swap_horiz</span>
+<span class="font-label-md text-label-md py-2">Converters</span>
+</a>
+<!-- Optimizers -->
+<a class="flex items-center gap-stack-gap text-on-surface-variant dark:text-surface-variant px-clay-padding-sm py-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:translate-x-1 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" href="#">
+<span class="material-symbols-outlined">image</span>
+<span class="font-label-md text-label-md">Optimizers</span>
+</a>
+<!-- History -->
+<a class="flex items-center gap-stack-gap text-on-surface-variant dark:text-surface-variant px-clay-padding-sm py-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:translate-x-1 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-stack-gap text-on-surface-variant dark:text-surface-variant px-clay-padding-sm py-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:translate-x-1 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-3 px-4 bg-clay-purple-main text-clay-purple-deep font-bold rounded-xl shadow-clay hover:shadow-clay-hover clay-button flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">star</span>
+                Upgrade to Pro
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 h-20 bg-surface/90 dark:bg-surface-container/90 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.03)] z-40 flex items-center justify-between px-container-padding">
+<div class="flex items-center gap-4">
+<h2 class="font-tool-title text-tool-title text-primary font-extrabold">Unit Converter</h2>
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant text-micro rounded-full font-bold">ALPHA v1.2</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="w-64 py-2 px-4 rounded-full bg-surface-container-low border-none shadow-clay-inset focus:ring-2 focus:ring-primary/20 text-body-sm" placeholder="Search tools..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-on-surface-variant opacity-50">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-surface-container-high rounded-full spring-transition">
+<span class="material-symbols-outlined text-on-surface-variant">contrast</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-full spring-transition relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold shadow-clay hover:shadow-clay-hover clay-button">
+                    New Project
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 min-h-screen flex flex-col items-center justify-center p-12">
+<!-- Tool Container -->
+<div class="w-full max-w-2xl flex flex-col gap-10">
+<!-- Central Tool Panel -->
+<div class="bg-surface p-12 rounded-[2.5rem] shadow-clay flex flex-col items-center text-center gap-8 relative overflow-hidden">
+<!-- Subtle Texture/Decoration -->
+<div class="absolute -top-12 -right-12 w-40 h-40 bg-clay-purple-light/20 rounded-full blur-2xl"></div>
+<header class="flex flex-col gap-2">
+<h3 class="font-headline-lg text-headline-lg text-clay-green-deep">Smart Formatter</h3>
+<p class="text-on-surface-variant opacity-70">Convert your text to professional formats instantly.</p>
+</header>
+<!-- Input Group -->
+<div class="w-full flex flex-col gap-6">
+<div class="flex flex-col items-start gap-2 w-full">
+<label class="font-label-md text-label-md text-primary ml-4">Input Text</label>
+<div class="w-full h-32 p-4 rounded-3xl shadow-clay-inset bg-surface-container-low overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/20">
+<textarea class="w-full h-full bg-transparent border-none focus:ring-0 text-body-lg resize-none" placeholder="Paste your text here..."></textarea>
+</div>
+</div>
+<div class="flex flex-col items-start gap-2 w-full">
+<label class="font-label-md text-label-md text-primary ml-4">Formatting Mode</label>
+<div class="w-full grid grid-cols-3 gap-4">
+<button class="py-3 rounded-2xl bg-clay-blue-light text-clay-blue-deep font-bold shadow-clay clay-button">JSON</button>
+<button class="py-3 rounded-2xl bg-white text-on-surface-variant font-bold shadow-clay-inset clay-button border border-outline-variant/30">Markdown</button>
+<button class="py-3 rounded-2xl bg-white text-on-surface-variant font-bold shadow-clay-inset clay-button border border-outline-variant/30">Clean Text</button>
+</div>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="group relative w-full py-5 rounded-full bg-clay-green-deep text-white font-headline-md text-headline-md shadow-clay hover:shadow-clay-hover clay-button overflow-hidden" id="convertBtn">
+<span class="relative z-10 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">bolt</span>
+                        Format Now
+                    </span>
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+<!-- Results Display Area -->
+<div class="bg-surface-container-high/50 backdrop-blur-sm rounded-[2.5rem] p-8 border border-white/40 shadow-clay opacity-0 translate-y-8 transition-all duration-700 ease-out" id="resultArea">
+<div class="flex justify-between items-center mb-6">
+<span class="flex items-center gap-2 font-bold text-clay-green-deep">
+<span class="material-symbols-outlined">check_circle</span>
+                        Formatted Output
+                    </span>
+<div class="flex gap-2">
+<button class="p-2 bg-white rounded-xl shadow-clay hover:scale-110 spring-transition text-clay-blue-deep" title="Copy">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+<button class="p-2 bg-white rounded-xl shadow-clay hover:scale-110 spring-transition text-clay-purple-deep" title="Download">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+<div class="bg-surface rounded-2xl p-6 shadow-clay-inset min-h-[120px] font-mono text-body-sm text-on-surface-variant">
+<code id="resultCode">
+                        {
+                            "status": "success",
+                            "timestamp": "2024-05-20T10:30:00Z",
+                            "data": "Your formatted text will appear here..."
+                        }
+                    </code>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-container-padding ml-64 bg-surface-dim dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline flex flex-col md:flex-row justify-between items-center px-12 gap-gutter">
+<div class="text-body-sm text-on-surface-variant dark:text-surface-variant">
+            © 2024 TestKit Professional. Built for efficiency.
+        </div>
+<div class="flex gap-8 text-label-md font-label-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-clay-purple-light transition-colors duration-200" href="#">Documentation</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-clay-purple-light transition-colors duration-200" href="#">Support</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-clay-purple-light transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-clay-green-deep dark:text-clay-green-main font-bold" href="#">API Status: Operational</a>
+</div>
+</footer>
+<script>
+        // Micro-interaction for the conversion
+        const convertBtn = document.getElementById('convertBtn');
+        const resultArea = document.getElementById('resultArea');
+        const resultCode = document.getElementById('resultCode');
+
+        convertBtn.addEventListener('click', () => {
+            // Simulate processing
+            convertBtn.innerHTML = `
+                <span class="relative z-10 flex items-center justify-center gap-3">
+                    <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                </span>
+            `;
+
+            setTimeout(() => {
+                convertBtn.innerHTML = `
+                    <span class="relative z-10 flex items-center justify-center gap-3">
+                        <span class="material-symbols-outlined">bolt</span>
+                        Format Now
+                    </span>
+                `;
+                
+                resultArea.classList.remove('opacity-0', 'translate-y-8');
+                resultCode.innerHTML = `{
+  "id": "tk_98234",
+  "formatted": true,
+  "original_length": 420,
+  "output": "Cleaned and optimized result set successfully generated.",
+  "engine": "TestKit-Core-v4"
+}`;
+                
+                // Add a little bounce to the result area
+                resultArea.animate([
+                    { transform: 'scale(0.98)' },
+                    { transform: 'scale(1.02)' },
+                    { transform: 'scale(1)' }
+                ], {
+                    duration: 400,
+                    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                });
+            }, 800);
+        });
+    </script>
+</body></html>
