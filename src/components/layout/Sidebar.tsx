@@ -138,7 +138,7 @@ export default function Sidebar({ collapsed, onToggleCollapse, onNavigate }: Sid
       return (
         <div className="space-y-0.5 ml-4">
           <a
-            href="https://github.com"
+            href="https://github.com/HuPr0815/hus2tools"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center w-full text-xs rounded-xl px-3 py-2 spring-transition gap-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:translate-x-1"

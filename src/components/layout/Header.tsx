@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Palette, Plus, Contrast, Bell, Menu } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
@@ -18,6 +19,7 @@ const THEME_COLORS = [
 
 export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const [spinning, setSpinning] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -49,7 +51,7 @@ export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -58,8 +60,22 @@ export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
     document.documentElement.style.setProperty('--color-clay-deep', t.deep);
     document.documentElement.style.setProperty('--color-clay-bg', t.light);
     document.documentElement.style.setProperty('--primary-rgb', t.rgb);
+    localStorage.setItem('testkit:accent', t.key);
     setPaletteOpen(false);
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('testkit:accent');
+    if (saved) {
+      const t = THEME_COLORS.find(c => c.key === saved);
+      if (t) {
+        document.documentElement.style.setProperty('--color-primary', t.primary);
+        document.documentElement.style.setProperty('--color-clay-deep', t.deep);
+        document.documentElement.style.setProperty('--color-clay-bg', t.light);
+        document.documentElement.style.setProperty('--primary-rgb', t.rgb);
+      }
+    }
+  }, []);
 
   return (
     <header className={cn(
@@ -157,9 +173,9 @@ export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
 
         <div className="h-8 w-[1px] bg-outline-variant mx-2 hidden md:block" />
 
-        <button className="bg-primary text-on-primary px-4 md:px-6 py-2.5 rounded-full font-bold shadow-clay hover:scale-105 spring-transition active:scale-95 flex items-center gap-2">
+        <button onClick={() => navigate('/')} className="bg-primary text-on-primary px-4 md:px-6 py-2.5 rounded-full font-bold shadow-clay hover:scale-105 spring-transition active:scale-95 flex items-center gap-2">
           <Plus className="w-5 h-5" />
-          <span className="hidden md:inline">New Project</span>
+          <span className="hidden md:inline">首页</span>
         </button>
       </div>
     </header>

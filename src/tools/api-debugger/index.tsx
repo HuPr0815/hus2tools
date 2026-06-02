@@ -51,6 +51,13 @@ export default function ApiDebugger() {
       if (authToken) headerObj['Authorization'] = `Bearer ${authToken}`;
       const res = await sendRequest({ method, url, headers: headerObj, body: ['GET', 'HEAD'].includes(method) ? '' : body });
       setResponse(res);
+    } catch (e) {
+      setResponse({
+        status: 0,
+        headers: {},
+        body: `请求失败: ${e instanceof Error ? e.message : '未知错误'}`,
+        time: 0,
+      });
     } finally {
       setLoading(false);
     }

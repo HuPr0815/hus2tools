@@ -100,6 +100,9 @@ export default function HomePage() {
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md leading-relaxed">
                 由 <span className="text-clay-green-deep dark:text-clay-green-main font-bold">husmall2un2</span>（狐思墨兔 · 胡小二）精心打造的在线工具箱，涵盖格式化、编解码、数据转换、图片处理等 50+ 实用工具，即开即用，高效便捷。
               </p>
+              <span className="inline-flex items-center gap-1.5 bg-clay-pink-light/60 text-clay-pink-deep dark:text-clay-pink-main px-3 py-1 rounded-full text-xs font-bold">
+                🚧 网站处于测试阶段，已经在努力改bug了
+              </span>
               <div className="flex gap-4 pt-4">
                 <button className="bg-primary text-on-primary px-6 md:px-8 py-3 md:py-4 rounded-2xl font-bold shadow-clay hover:scale-105 spring-transition ripple-effect">开始使用</button>
                 <button className="bg-surface text-on-surface-variant px-6 md:px-8 py-3 md:py-4 rounded-2xl font-bold shadow-clay-inset hover:bg-surface-container-low spring-transition">了解更多</button>

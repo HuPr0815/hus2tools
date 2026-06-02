@@ -12,19 +12,12 @@ interface SearchDialogProps {
 
 export default function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [query, setQuery] = useState('');
-  const [prevOpen, setPrevOpen] = useState(open);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  if (open && !prevOpen) {
-    setQuery('');
-  }
-  if (open !== prevOpen) {
-    setPrevOpen(open);
-  }
-
   useEffect(() => {
     if (open) {
+      setQuery('');
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open]);
