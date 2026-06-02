@@ -1,0 +1,1 @@
+import{L as e,z as t}from"./index-MknoUtsr.js";var n=t(e(),1);function r(e){let t=`testkit:input:${e}`,[r,i]=(0,n.useState)(()=>{try{return localStorage.getItem(t)??``}catch{return``}});return[r,(0,n.useCallback)(e=>{i(e);try{localStorage.setItem(t,e)}catch{}},[t]),(0,n.useCallback)(()=>{i(``);try{localStorage.removeItem(t)}catch{}},[t])]}export{r as t};
