@@ -39,7 +39,7 @@ export default function WatermarkTool() {
     img.src = preview;
     await new Promise(resolve => { img.onload = resolve; });
     const pos = tile ? 'tile' : position;
-    const dataUrl = applyWatermark(img, { text, fontSize, opacity: opacity / 100, color: 'rgba(0,0,0,0.5)', position: pos, rotation: -30 });
+    const dataUrl = applyWatermark(img, { text, fontSize, opacity: opacity / 100, color: `rgba(0,0,0,${opacity / 100})`, position: pos, rotation: -30 });
     setResultUrl(dataUrl);
   };
 
@@ -131,7 +131,7 @@ export default function WatermarkTool() {
               <div className="relative">
                 <img src={preview} alt="preview" className="max-h-[460px] max-w-full object-contain rounded-xl" />
                 {resultUrl && (
-                  <img src={resultUrl} alt="watermarked" className="absolute inset-0 max-h-[460px] max-w-full object-contain rounded-xl opacity-60" />
+                  <img src={resultUrl} alt="watermarked" className="absolute inset-0 max-h-[460px] max-w-full object-contain rounded-xl" />
                 )}
               </div>
             </div>

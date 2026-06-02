@@ -3,7 +3,7 @@ import { AppWindow } from 'lucide-react';
 import ToolHeader from '@/components/shared/ToolHeader';
 import Dropzone from '@/components/shared/Dropzone';
 import ClayToggle from '@/components/shared/ClayToggle';
-import { resizeImage, generateIcoPreview } from './utils';
+import { generateIcoPreview, generateIcoFile, downloadPngSizes } from './utils';
 
 const ICO_SIZES = [16, 32, 48, 64, 128, 256];
 
@@ -12,7 +12,7 @@ export default function IcoGeneratorTool() {
   const [preview, setPreview] = useState('');
   const [selectedSizes, setSelectedSizes] = useState<number[]>([16, 32, 48]);
   const [include256, setInclude256] = useState(false);
-  const [resultUrl, setResultUrl] = useState('');
+  const [icoBlob, setIcoBlob] = useState<Blob | null>(null);
   const [previews, setPreviews] = useState<{ size: number; dataUrl: string }[]>([]);
 
   const handleFilesDrop = (files: FileList) => {
@@ -20,7 +20,7 @@ export default function IcoGeneratorTool() {
     if (dropped?.type.startsWith('image/')) {
       setFile(dropped);
       setPreview(URL.createObjectURL(dropped));
-      setResultUrl('');
+      setIcoBlob(null);
     }
   };
 
@@ -40,16 +40,33 @@ export default function IcoGeneratorTool() {
     await new Promise(resolve => { img.onload = resolve; });
     const icoPreviews = generateIcoPreview(img, sizes);
     setPreviews(icoPreviews);
-    setResultUrl(resizeImage(img, sizes[0]));
+    const blob = await generateIcoFile(img, sizes);
+    setIcoBlob(blob);
     URL.revokeObjectURL(img.src);
   };
 
   const handleDownload = () => {
-    if (!resultUrl) return;
+    if (!icoBlob) return;
+    const url = URL.createObjectURL(icoBlob);
     const a = document.createElement('a');
-    a.href = resultUrl;
+    a.href = url;
     a.download = 'favicon.ico';
     a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadPng = () => {
+    if (!file) return;
+    const sizes = include256 && !selectedSizes.includes(256)
+      ? [...selectedSizes, 256]
+      : selectedSizes;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const fileName = file.name.replace(/\.[^.]+$/, '');
+      downloadPngSizes(img, sizes, fileName);
+      URL.revokeObjectURL(img.src);
+    };
   };
 
   return (
@@ -96,15 +113,24 @@ export default function IcoGeneratorTool() {
                 >
                   生成 ICO
                 </button>
-                {resultUrl && (
+                {icoBlob && (
                   <button
                     onClick={handleDownload}
                     className="px-6 py-2.5 rounded-full bg-surface text-on-surface-variant font-bold shadow-clay-inset border border-outline-variant/30 clay-button"
                   >
-                    下载
+                    下载 ICO
                   </button>
                 )}
               </div>
+
+              {icoBlob && (
+                <button
+                  onClick={handleDownloadPng}
+                  className="w-full px-6 py-2.5 rounded-full bg-surface text-on-surface-variant font-bold shadow-clay-inset border border-outline-variant/30 clay-button"
+                >
+                  下载 PNG 多尺寸
+                </button>
+              )}
             </div>
           </div>
         </aside>

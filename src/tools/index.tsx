@@ -34,12 +34,11 @@ import {
   PenTool,
   Code,
   Zap,
-  QrCode,
+  Ruler,
+  Barcode,
   FileOutput,
   Brain,
   ScanLine,
-  Ruler,
-  Calendar,
 } from 'lucide-react';
 import { registerTool } from '../lib/tool-registry';
 const JsonFormatter = lazy(() => import('./json-formatter'));
@@ -71,6 +70,8 @@ const MarkdownPreview = lazy(() => import('./markdown-preview'));
 const ApiDebugger = lazy(() => import('./api-debugger'));
 const HttpStatus = lazy(() => import('./http-status'));
 const IpLookup = lazy(() => import('./ip-lookup'));
+const CodeGenerator = lazy(() => import('./code-generator'));
+const UnitConverter = lazy(() => import('./unit-converter'));
 
 const internalTools = [
   {
@@ -364,6 +365,26 @@ const internalTools = [
     component: IpLookup,
     keywords: ['ip', '地址', '查询', '地理位置', 'isp', '网络', 'ipv4'],
   },
+  {
+    type: 'internal' as const,
+    id: 'code-generator',
+    name: '码生成器',
+    description: '生成二维码、条形码、WiFi码、vCard码等多种码',
+    icon: <Barcode size={18} />,
+    category: 'generate' as const,
+    component: CodeGenerator,
+    keywords: ['二维码', 'qrcode', '条形码', 'barcode', '生成', 'WiFi', 'vCard', 'EAN', 'CODE128'],
+  },
+  {
+    type: 'internal' as const,
+    id: 'unit-converter',
+    name: '单位换算',
+    description: '长度/重量/温度/面积/体积/速度/数据/时间/压力等单位换算',
+    icon: <Ruler size={18} />,
+    category: 'convert' as const,
+    component: UnitConverter,
+    keywords: ['单位', '换算', '长度', '重量', '温度', '面积', '体积', '速度', '数据', '时间', '压力'],
+  },
 ];
 
 const externalTools = [
@@ -374,26 +395,12 @@ const externalTools = [
     description: 'PDF 合并/拆分/转换/压缩',
     icon: <FileOutput size={18} />,
     category: 'office' as const,
-    externalUrl: 'https://www.67tool.com/pdf',
+    externalUrl: 'https://www.ilovepdf.com/zh-cn',
     alternatives: [
       { name: 'Smallpdf 中文', url: 'https://smallpdf.com/cn', description: 'PDF 在线处理' },
-      { name: 'iLovePDF 中文', url: 'https://www.ilovepdf.com/zh-cn', description: 'PDF 全功能工具' },
+      { name: '67tool PDF', url: 'https://www.67tool.com/pdf', description: 'PDF 工具' },
     ],
     keywords: ['pdf', '合并', '拆分', '转换', '压缩'],
-  },
-  {
-    type: 'external' as const,
-    id: 'qrcode',
-    name: '二维码生成器',
-    description: '在线生成和解析二维码',
-    icon: <QrCode size={18} />,
-    category: 'office' as const,
-    externalUrl: 'https://cli.im',
-    alternatives: [
-      { name: '67tool 二维码', url: 'https://www.67tool.com/qrcode', description: '二维码生成' },
-      { name: '草料二维码', url: 'https://cli.im', description: '二维码生成' },
-    ],
-    keywords: ['二维码', 'qrcode', '生成', '扫码'],
   },
   {
     type: 'external' as const,
@@ -429,10 +436,10 @@ const externalTools = [
     description: '图片转文字 OCR 识别工具',
     icon: <ScanLine size={18} />,
     category: 'office' as const,
-    externalUrl: 'https://www.67tool.com/ocr',
+    externalUrl: 'https://pearocr.com',
     alternatives: [
       { name: '白描 OCR', url: 'https://baimiao.app', description: 'OCR 文字识别' },
-      { name: 'PearOCR', url: 'https://pearocr.com', description: '在线 OCR 识别' },
+      { name: '67tool OCR', url: 'https://www.67tool.com/ocr', description: '在线 OCR' },
     ],
     keywords: ['ocr', '文字识别', '图片转文字'],
   },
@@ -445,36 +452,10 @@ const externalTools = [
     category: 'office' as const,
     externalUrl: 'https://fanyi.baidu.com',
     alternatives: [
-      { name: 'DeepL', url: 'https://www.deepl.com/translator', description: 'AI 翻译' },
       { name: '有道翻译', url: 'https://fanyi.youdao.com', description: '多语言翻译' },
+      { name: 'DeepL', url: 'https://www.deepl.com/zh/translator', description: 'AI 翻译' },
     ],
     keywords: ['翻译', 'translate', '百度翻译', '中英'],
-  },
-  {
-    type: 'external' as const,
-    id: 'unit-converter',
-    name: '单位换算',
-    description: '长度/重量/温度等单位换算',
-    icon: <Ruler size={18} />,
-    category: 'office' as const,
-    externalUrl: 'https://www.67tool.com/unit-converter',
-    alternatives: [
-      { name: 'Tool.lu 单位换算', url: 'https://tool.lu/unit', description: '单位换算工具' },
-    ],
-    keywords: ['单位', '换算', '长度', '重量', '温度'],
-  },
-  {
-    type: 'external' as const,
-    id: 'calendar-tool',
-    name: '日历工具',
-    description: '万年历、老黄历和节假日查询',
-    icon: <Calendar size={18} />,
-    category: 'office' as const,
-    externalUrl: 'https://wannianrili.bmcx.com',
-    alternatives: [
-      { name: '67tool 日历', url: 'https://www.67tool.com/calendar', description: '万年历查询' },
-    ],
-    keywords: ['日历', '老黄历', '万年历', '节假日'],
   },
   {
     type: 'external' as const,
@@ -497,10 +478,10 @@ const externalTools = [
     description: '在线压缩视频文件大小',
     icon: <Video size={18} />,
     category: 'external' as const,
-    externalUrl: 'https://videocompressors.com/zh',
+    externalUrl: 'https://www.67tool.com/video-compress',
     alternatives: [
-      { name: '67tool 视频压缩', url: 'https://www.67tool.com/video-compress', description: '视频压缩' },
       { name: 'YouCompress', url: 'https://www.youcompress.com', description: '视频压缩' },
+      { name: '视频压缩器', url: 'https://videocompressors.com/zh', description: '视频压缩' },
     ],
     keywords: ['视频', '压缩', 'video', 'compress', 'mp4'],
   },
@@ -514,7 +495,7 @@ const externalTools = [
     externalUrl: 'https://ai-bot.cn',
     alternatives: [
       { name: 'AI 导航', url: 'https://ai-bot.cn', description: 'AI 工具导航' },
-      { name: 'ChatGPT', url: 'https://chat.openai.com', description: 'AI 对话' },
+      { name: 'Z.AI', url: 'https://chat.z.ai', description: 'AI 对话' },
     ],
     keywords: ['ai', '人工智能', '写作', '绘画', '对话', 'chatgpt'],
   },
@@ -527,8 +508,8 @@ const externalTools = [
     category: 'external' as const,
     externalUrl: 'https://mineru.net',
     alternatives: [
-      { name: '67tool PDF转Word', url: 'https://www.67tool.com/pdf-to-word', description: 'PDF 转 Word' },
       { name: 'iLovePDF', url: 'https://www.ilovepdf.com/zh-cn', description: 'PDF 工具' },
+      { name: '67tool PDF转Word', url: 'https://www.67tool.com/pdf-to-word', description: 'PDF 转 Word' },
     ],
     keywords: ['文档', '解析', 'PDF', 'Word', '提取', 'MinerU'],
   },
@@ -539,10 +520,10 @@ const externalTools = [
     description: '在线绘图和白板工具',
     icon: <PenTool size={18} />,
     category: 'external' as const,
-    externalUrl: 'https://excalidraw.com',
+    externalUrl: 'https://boardos.com',
     alternatives: [
-      { name: 'BoardOS', url: 'https://boardos.com', description: '在线白板' },
       { name: 'Draw.io', url: 'https://app.diagrams.net', description: '流程图工具' },
+      { name: 'Excalidraw', url: 'https://excalidraw.com', description: '手绘白板' },
     ],
     keywords: ['画板', '白板', '绘图', '流程图', 'excalidraw'],
   },
@@ -567,10 +548,10 @@ const externalTools = [
     description: '在线代码编辑和运行沙箱',
     icon: <Code size={18} />,
     category: 'external' as const,
-    externalUrl: 'https://codepen.io',
+    externalUrl: 'https://codejiejie.com',
     alternatives: [
+      { name: 'CodePen', url: 'https://codepen.io', description: '前端代码编辑' },
       { name: 'JSFiddle', url: 'https://jsfiddle.net', description: '在线代码编辑' },
-      { name: 'StackBlitz', url: 'https://stackblitz.com', description: '在线 IDE' },
     ],
     keywords: ['代码', '在线', '运行', '沙箱', 'codepen', 'jsfiddle'],
   },
@@ -597,8 +578,8 @@ const externalTools = [
     category: 'external' as const,
     externalUrl: 'https://designer.mocky.io',
     alternatives: [
-      { name: 'JSONPlaceholder', url: 'https://jsonplaceholder.typicode.com', description: 'Mock API' },
       { name: 'FastMock', url: 'https://fastmock.site', description: 'Mock 服务' },
+      { name: 'JSONPlaceholder', url: 'https://jsonplaceholder.typicode.com', description: 'Mock API' },
     ],
     keywords: ['mock', 'api', '模拟', '接口', '测试'],
   },
@@ -609,10 +590,10 @@ const externalTools = [
     description: '网站性能和速度测试',
     icon: <Search size={18} />,
     category: 'external' as const,
-    externalUrl: 'https://www.webpagetest.org',
+    externalUrl: 'https://www.17ce.com',
     alternatives: [
-      { name: '17CE', url: 'https://www.17ce.com', description: '网站测速' },
       { name: '站长工具 测速', url: 'https://tool.chinaz.com/speed', description: '网站测速' },
+      { name: 'WebPageTest', url: 'https://www.webpagetest.org', description: '网站测速' },
     ],
     keywords: ['性能', '速度', '测试', 'pagespeed', 'lighthouse'],
   },

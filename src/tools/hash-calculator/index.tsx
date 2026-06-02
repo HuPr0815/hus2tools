@@ -3,7 +3,7 @@ import { Shield, Upload, CheckCircle } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import BasicToolLayout from '@/components/shared/BasicToolLayout';
 import { usePersistInput } from '@/hooks/usePersistInput';
-import { calculateHash, md5, type HashAlgorithm } from './utils';
+import { calculateHash, calculateFileHash, md5, type HashAlgorithm } from './utils';
 
 type Algorithm = 'md5' | 'sha1' | 'sha256' | 'sha512';
 
@@ -24,6 +24,7 @@ const ALGORITHMS: { key: Algorithm; label: string }[] = [
 export default function HashCalculator() {
   const [input, setInput, _clearInput] = usePersistInput('hash-calculator');
   const [hashes, setHashes] = useState<Record<Algorithm, string>>({ md5: '', sha1: '', sha256: '', sha512: '' });
+  const [fileName, setFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCalculate = async () => {
@@ -43,14 +44,33 @@ export default function HashCalculator() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setInput(`[文件: ${file.name}]`);
-    };
-    reader.readAsArrayBuffer(file);
+    setFileName(file.name);
+    setInput('');
+    try {
+      const results = {} as Record<Algorithm, string>;
+      // MD5 - need to read as text
+      const text = await file.text();
+      results.md5 = md5(text);
+      // SHA algorithms
+      for (const algo of ALGORITHMS) {
+        const algoValue = ALGO_MAP[algo.key];
+        if (algoValue) {
+          results[algo.key] = await calculateFileHash(file, algoValue);
+        }
+      }
+      setHashes(results);
+    } catch {
+      setHashes({ md5: '', sha1: '', sha256: '', sha512: '' });
+    }
+  };
+
+  const handleClearFile = () => {
+    setFileName('');
+    setHashes({ md5: '', sha1: '', sha256: '', sha512: '' });
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -85,14 +105,29 @@ export default function HashCalculator() {
     >
       <div className="flex flex-col items-start gap-2 w-full">
         <label className="text-xs font-semibold tracking-wider text-primary dark:text-clay-green-main ml-4">输入文本</label>
-        <div className="w-full h-24 md:h-32 p-4 rounded-3xl shadow-clay-inset bg-surface-container-low dark:bg-black/20 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/20">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="输入要计算哈希的文本..."
-            className="w-full h-full text-sm font-mono bg-transparent text-on-surface placeholder:text-outline focus:outline-none resize-none"
-          />
-        </div>
+        {fileName ? (
+          <div className="w-full p-4 rounded-3xl shadow-clay-inset bg-surface-container-low dark:bg-black/20 flex items-center justify-between">
+            <span className="text-sm text-on-surface-variant dark:text-gray-300 truncate flex items-center gap-2">
+              <Upload className="w-4 h-4 shrink-0" />
+              {fileName}
+            </span>
+            <button
+              onClick={handleClearFile}
+              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors shrink-0 ml-2 px-2 py-1 rounded-xl bg-surface dark:bg-black/30 shadow-clay-inset"
+            >
+              清除文件
+            </button>
+          </div>
+        ) : (
+          <div className="w-full h-24 md:h-32 p-4 rounded-3xl shadow-clay-inset bg-surface-container-low dark:bg-black/20 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/20">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="输入要计算哈希的文本..."
+              className="w-full h-full text-sm font-mono bg-transparent text-on-surface placeholder:text-outline focus:outline-none resize-none"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
