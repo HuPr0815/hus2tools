@@ -9,7 +9,8 @@ lerna-debug.log*
 
 node_modules
 dist
-ol
+old-hus2tools
+.trae
 dist-ssr
 *.local
 
