@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
 import { defaultKeymap, indentWithTab, history, historyKeymap } from '@codemirror/commands';
 import { syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldGutter, indentOnInput } from '@codemirror/language';
@@ -24,50 +24,60 @@ function getLanguageExtension(lang?: string) {
   }
 }
 
-function getThemeExtension(): boolean {
+function isDarkMode(): boolean {
   if (typeof document === 'undefined') return false;
   return document.documentElement.classList.contains('dark');
 }
+
+const baseExtensions = [
+  lineNumbers(),
+  highlightActiveLine(),
+  highlightActiveLineGutter(),
+  history(),
+  foldGutter(),
+  indentOnInput(),
+  bracketMatching(),
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+  EditorView.theme({
+    '&': { fontSize: '13px', fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+    '.cm-content': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+    '.cm-scroller': { overflow: 'auto' },
+    '.cm-gutters': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+  }),
+];
 
 export default function CodeEditor({ value, onChange, language, readOnly = false, placeholder: _placeholder, height = '100%' }: CodeEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
+  const themeCompartment = useRef(new Compartment());
+  const langCompartment = useRef(new Compartment());
+  const readOnlyCompartment = useRef(new Compartment());
+  const heightCompartment = useRef(new Compartment());
 
+  // Keep onChange ref up to date
   useEffect(() => {
     onChangeRef.current = onChange;
   });
 
+  // Initialize editor once (no value dependency)
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const isDark = getThemeExtension();
+    const dark = isDarkMode();
     const extensions = [
-      lineNumbers(),
-      highlightActiveLine(),
-      highlightActiveLineGutter(),
-      history(),
-      foldGutter(),
-      indentOnInput(),
-      bracketMatching(),
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-      ...getLanguageExtension(language),
+      ...baseExtensions,
+      langCompartment.current.of(getLanguageExtension(language)),
+      readOnlyCompartment.current.of(EditorState.readOnly.of(readOnly)),
+      themeCompartment.current.of(dark ? [oneDark] : []),
+      heightCompartment.current.of(EditorView.theme({ '&': { height } })),
       EditorView.updateListener.of((update) => {
         if (update.docChanged && onChangeRef.current) {
           onChangeRef.current(update.state.doc.toString());
         }
       }),
-      EditorView.theme({
-        '&': { height, fontSize: '13px', fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-        '.cm-content': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-        '.cm-scroller': { overflow: 'auto' },
-        '.cm-gutters': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-      }),
-      EditorState.readOnly.of(readOnly),
     ];
-
-    if (isDark) extensions.push(oneDark);
 
     const state = EditorState.create({
       doc: value,
@@ -85,8 +95,11 @@ export default function CodeEditor({ value, onChange, language, readOnly = false
       view.destroy();
       viewRef.current = null;
     };
-  }, [language, readOnly, height, value]);
+    // Only re-create on structural changes, not value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, readOnly]);
 
+  // Sync value via dispatch (no destroy/recreate)
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -98,49 +111,31 @@ export default function CodeEditor({ value, onChange, language, readOnly = false
     }
   }, [value]);
 
+  // Update height via compartment
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: heightCompartment.current.reconfigure(
+        EditorView.theme({ '&': { height } })
+      ),
+    });
+  }, [height]);
+
+  // Theme switch via compartment (no destroy/recreate)
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const view = viewRef.current;
-      if (!view || !containerRef.current) return;
-      const isDark = document.documentElement.classList.contains('dark');
-      view.destroy();
-      viewRef.current = null;
-
-      const extensions = [
-        lineNumbers(),
-        highlightActiveLine(),
-        highlightActiveLineGutter(),
-        history(),
-        foldGutter(),
-        indentOnInput(),
-        bracketMatching(),
-        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-        ...getLanguageExtension(language),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged && onChangeRef.current) {
-            onChangeRef.current(update.state.doc.toString());
-          }
-        }),
-        EditorView.theme({
-          '&': { height, fontSize: '13px', fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-          '.cm-content': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-          '.cm-scroller': { overflow: 'auto' },
-          '.cm-gutters': { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
-        }),
-        EditorState.readOnly.of(readOnly),
-      ];
-      if (isDark) extensions.push(oneDark);
-
-      const currentValue = value;
-      const state = EditorState.create({ doc: currentValue, extensions });
-      const newView = new EditorView({ state, parent: containerRef.current });
-      viewRef.current = newView;
+      if (!view) return;
+      const dark = isDarkMode();
+      view.dispatch({
+        effects: themeCompartment.current.reconfigure(dark ? [oneDark] : []),
+      });
     });
 
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
-  }, [language, readOnly, height, value]);
+  }, []);
 
   return (
     <div

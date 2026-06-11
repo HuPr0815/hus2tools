@@ -18,10 +18,25 @@ export async function lookupIp(ip: string): Promise<IpInfo | null> {
   }
 }
 
+export function isValidIpv4(ip: string): boolean {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return false;
+  return parts.every(part => {
+    if (!/^\d{1,3}$/.test(part)) return false;
+    const num = Number(part);
+    return num >= 0 && num <= 255 && String(num) === part;
+  });
+}
+
+export function isValidIpv6(ip: string): boolean {
+  // Full or abbreviated IPv6
+  const full = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+  const abbreviated = /^(([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4})?::(([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4})?$/;
+  return full.test(ip) || abbreviated.test(ip);
+}
+
 export function isValidIp(ip: string): boolean {
-  const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
-  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
-  return ipv4.test(ip) || ipv6.test(ip);
+  return isValidIpv4(ip) || isValidIpv6(ip);
 }
 
 export function getMyIp(): Promise<string | null> {
